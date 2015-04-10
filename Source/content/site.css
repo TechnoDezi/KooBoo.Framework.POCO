@@ -1,0 +1,113 @@
+﻿body{
+    margin-top:50px;
+    color:#404040;
+}
+h1,h2,h3{
+    margin-top:0px;
+}
+.navbar-menu
+{
+    line-height: 22px;
+    padding: 14px 30px 0 5px;
+    display:inline;
+    float:left;
+}
+    .navbar-menu img {
+        vertical-align: middle;
+        cursor:pointer;
+    }
+.navbar-brand
+{
+    line-height: 22px;
+    padding: 14px 0 0 10px;
+}
+    .navbar-brand img {
+        display: inline;
+        vertical-align: middle;
+    }
+    .navbar-brand span {
+        display: inline;
+        vertical-align: middle;
+        padding-left:10px;
+        color:#009c14;
+    }
+.navbar-default {
+    
+}
+.footer-right
+{
+    padding-right:10px;
+}
+.login-right
+{       
+    float:right;
+    line-height: 22px;
+    padding: 14px 0 0 0;
+    color:white;
+}
+    .login-right ul {
+        list-style:none;
+        vertical-align: middle; 
+    }
+    .login-right li {
+        display:inline;
+        padding-left:15px;
+        padding-right:5px;
+    }
+
+        .login-right li a {
+            text-decoration:none;
+            color:#404040;
+            font-size:14px;
+        }
+
+
+.submenuItems ul {
+    list-style:none;
+    margin:0;
+    padding:0;
+}
+    .submenuItems ul li {
+        margin: 0;
+        padding: 0;
+        text-indent:0;
+    }
+        .submenuItems ul li a {
+            display: block;
+            text-decoration: none;
+            color: #404040;
+            font-weight:bold;
+            font-size: 14px;
+            padding: 4px 15px;
+        }
+
+.selected {
+    background-color: darkgreen;
+}
+    .selected a {
+        color: white!important;
+    }
+.cursor-pointer{
+    cursor:pointer;
+}
+.recordingCanvas {
+	background: url(images/greyzz.png);
+    background-repeat:repeat;
+    border:dashed 1px #404040;	
+	display: block;
+	margin: 0 auto;
+}
+.recordAnalyser{
+    width:90%;
+    height:80px;
+    margin-left:10px;
+    margin-right:10px;
+    position:absolute;
+    bottom:60px;
+}
+.breadcrumb li a {
+  color: #9b9b9b !important;
+}
+.modal-backdrop {
+    z-index:0;
+}

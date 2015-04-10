@@ -1,0 +1,276 @@
+﻿<script type="text/javascript">
+    $(function () {
+        function FolderViewModel() {
+            var self = this;
+
+            //Properties
+            self.folder = ko.observable();
+            self.tablesCount = ko.observable(0);
+            self.tmplPreview = ko.observable();
+            self.namespace = ko.observable("SomeNamespace.ModuleName");
+            self.baseClass = ko.observable("BusinessBase");
+
+            //Functions
+            self.init = function () {
+                self.tablesCount(App.Variables.SelectedTables.length);
+
+                self.renderFirstTablePreview();
+            }
+            self.renderFirstTablePreview = function()
+            {
+                self.GetTableData(App.Variables.SelectedTables[0].tableName, function (data) {
+                    self.tmplPreview($("#classTemplate").render(data));
+                });
+            }
+            self.GetTableData = function(tableName, callback)
+            {
+                var objTeml = {
+                    TableName: "",
+                    Columns: [],
+                    IdentityColumn: "",
+                    IdentityType: "",
+                    IdentityEnumType: "",
+                    namespace: "",
+                    baseClass: ""
+                }
+                var data = objTeml;
+                data.TableName = tableName;
+                data.namespace = self.namespace();
+                data.baseClass = self.baseClass();
+
+                //Get columns for first table
+                App.ConnectSql(function (connection) {
+                    var request = new App.sql.Request(connection);
+
+                    request.query("exec sp_columns '" + data.TableName + "'", function (err, recordset) {
+                        if (err != null && err.code != "") {
+                            bootbox.alert(err.message, function () { });
+                        }
+                        else {
+                            $(recordset).each(function (index, column) {
+                                if (column.TYPE_NAME.toLowerCase().indexOf("identity") > 0)
+                                {
+                                    data.IdentityColumn = column.COLUMN_NAME;
+                                    data.IdentityType = self.GetDataType(column.TYPE_NAME);
+                                    data.IdentityEnumType = self.GetEnumDataType(column.TYPE_NAME);
+                                }
+
+                                var datType = self.GetDataType(column.TYPE_NAME);
+                                data.Columns.push({
+                                    ColumnName: column.COLUMN_NAME,
+                                    DataType: datType,
+                                    IsIntColumn: (datType == "int") ? true : false,
+                                    EnumDataType: self.GetEnumDataType(column.TYPE_NAME)
+                                });
+                            });
+
+                            callback(data);
+                        }
+                    });
+
+                });
+
+            }
+            self.GetDataType = function(typeNam)
+            {
+                var value = "";
+
+                switch(typeNam.toLowerCase())
+                {
+                    case "int identity": value = "int"; break;
+                    case "int": value = "int"; break;
+                    case "datetime": value = "DateTime"; break;
+                    case "varchar": value = "string"; break;
+                    case "text": value = "string"; break;
+                    case "decimal": value = "Decimal"; break;
+                    case "numeric": value = "Decimal"; break;
+                    case "bigint": value = "Int64"; break;
+                    case "bit": value = "bool"; break;
+                    case "image": value = "byte[]"; break;
+                    case "uniqueidentifier": value = "Guid"; break;
+                }
+
+                return value;
+            }
+            self.GetEnumDataType = function (typeNam) {
+                var value = "";
+
+                switch (typeNam.toLowerCase()) {
+                    case "int identity": value = "SqlDbType.Int"; break;
+                    case "int": value = "SqlDbType.Int"; break;
+                    case "datetime": value = "SqlDbType.DateTime"; break;
+                    case "varchar": value = "SqlDbType.VarChar"; break;
+                    case "text": value = "SqlDbType.Text"; break;
+                    case "decimal": value = "SqlDbType.Decimal"; break;
+                    case "numeric": value = "SqlDbType.Money"; break;
+                    case "bigint": value = "SqlDbType.BigInt"; break;
+                    case "bit": value = "SqlDbType.Bit"; break;
+                    case "image": value = "SqlDbType.Image"; break;
+                    case "uniqueidentifier": value = "SqlDbType.UniqueIdentifier"; break;
+                }
+
+                return value;
+            }
+            self.writeTextFile = function(text, fileName)
+            {
+                App.fileSystem.writeFile(self.folder() + "\\" + fileName, text, function (err) {
+                    
+                });
+            }
+
+            //Events
+            self.FormSubmit = function () {
+                $(App.Variables.SelectedTables).each(function (index, table) {
+                    self.GetTableData(table.tableName, function (data) {
+                        var classText = $("#classTemplate").render(data);
+                        self.writeTextFile(classText, table.tableName + ".cs");
+                    });
+                });
+                bootbox.alert("Classes exported to " + self.folder() + "\\", function () { });
+            }
+            self.cancelClick = function (data, event) {
+                App.PageManager.NavigateBack();
+            }
+
+            //Load View Model
+            self.init();
+        }
+
+        App.Variables.activePageViewModel = new FolderViewModel();
+        ko.applyBindings(App.Variables.activePageViewModel, document.getElementById("SelectFolder"));
+    });
+</script>
+
+<div id="SelectFolder">
+    <form data-bind="submit:FormSubmit">
+        <div class="form-group">
+            <label class="control-label">Selected Tables</label>
+            <div>
+                <span class="form-control-static" data-bind="text: tablesCount"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Namespace</label>
+            <input type="text" data-bind="value: namespace" class="form-control" required>
+        </div>
+        <div class="form-group">
+            <label>Base Class</label>
+            <input type="text" data-bind="value: baseClass" class="form-control" required>
+        </div>
+        <div class="form-group">
+            <label>Select a folder to export to</label>
+            <input type="file" nwdirectory data-bind="value:folder" required />
+            <p class="help-block">Export to: <span data-bind="text: folder"></span></p>
+        </div>
+        <button type="submit" class="btn btn-primary">Export Classes</button>
+    </form>
+    <br />
+    <h3>Export Preview</h3>
+    <textarea rows="25" class="form-control" data-bind="value:tmplPreview"></textarea>
+    <script id="classTemplate" type="text/x-jquery-tmpl">
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Data;
+using System.Data.SqlClient;
+using KooBoo.Framework;
+using KooBoo.Framework.Data;
+
+namespace {{:namespace}}
+{{:"{"}}
+    public class {{:TableName}} : {{:baseClass}}
+    {{:"{"}}
+        #region Properties
+
+        {{for Columns}}public {{:DataType}} {{:ColumnName}} {{:"{"}} get; set; {{:"}"}} 
+        {{/for}}
+        #endregion
+
+        #region Select Methods
+                    
+        {{:"/// <summary>"}}
+        {{:"/// Selects the details for the specified"}}{{:TableName}}
+        {{:"/// </summary>"}}
+        {{:"/// <returns></returns>"}}
+        public void Select{{:TableName}}Details()
+        {{:"{"}}
+            DataTable dt = sqlManager.ExcecuteDataTable("Select{{:TableName}}Details", CommandType.StoredProcedure, new List<SqlParameter>() {{:"{"}} 
+                SQL.SQLParameter("{{:IdentityColumn}}", {{:IdentityEnumType}}, {{:IdentityColumn}})
+            {{:"}"}});
+
+            if (dt.Rows.Count > 0)
+            {{:"{"}}
+                {{for Columns}}{{:ColumnName}} = dt.GetDataCellValue(0, "{{:ColumnName}}"){{if IsIntColumn}}.ToInt32(){{/if}};
+                {{/for}}
+            {{:"}"}}
+        {{:"}"}}
+
+        {{:"/// <summary>"}}
+        {{:"/// Selects a list of all "}}{{:TableName}} {{:"for the search criteria"}}
+        {{:"/// </summary>"}}
+        {{:"/// <returns></returns>"}}
+        public List{{:"<"}}{{:TableName}}{{:">"}} Select{{:TableName}}ListSearch(string searchValue)
+        {{:"{"}}
+            List{{:"<"}}{{:TableName}}{{:">"}} list = new List{{:"<"}}{{:TableName}}{{:">"}}();
+
+            DataTable dt = sqlManager.ExcecuteDataTable("Select{{:TableName}}ListSearch", CommandType.StoredProcedure, new List<SqlParameter>() {{:"{"}} 
+                SQL.SQLParameter("SearchValue", SqlDbType.VarChar, searchValue)
+            {{:"}"}});
+
+            if (dt.Rows.Count > 0)
+            {{:"{"}}
+                list = (from d in dt.AsEnumerable()
+                        select new {{:TableName}}
+                        {{:"{"}}
+                            {{for Columns}}{{:ColumnName}} = d.Field{{:"<"}}{{:DataType}}{{:">"}}("{{:ColumnName}}"),
+                            {{/for}}
+                        {{:"}"}}).ToList{{:"<"}}{{:TableName}}{{:">"}}();
+            {{:"}"}}
+
+            return list;
+        {{:"}"}}
+
+        #endregion
+
+        #region Insert Update Methods
+
+        {{:"/// <summary>"}}
+        {{:"/// Inserts or updates the specified "}}{{:TableName}}
+        {{:"/// </summary>"}}
+        public void InsertUpdate{{:TableName}}()
+        {{:"{"}}
+            sqlManager.ExcecuteNonQuery("InsertUpdate{{:TableName}}", CommandType.StoredProcedure, new List<SqlParameter>()
+            {{:"{"}} 
+                {{for Columns}}SQL.SQLParameter("{{:ColumnName}}", {{:EnumDataType}}, {{:ColumnName}}),
+                {{/for}}SQL.SQLParameter("{{:IdentityColumn}}Out", {{:IdentityEnumType}}, 4, ParameterDirection.Output)
+            {{:"}"}});
+
+            //Set output values
+            if (sqlManager.currentCommand != null)
+            {{:"{"}}
+                if (sqlManager.currentCommand.Parameters["{{:IdentityColumn}}Out"].Value != DBNull.Value)
+                {{:"{"}}
+                    {{:IdentityColumn}} = ({{:IdentityType}})sqlManager.currentCommand.Parameters["{{:IdentityColumn}}Out"].Value;
+                {{:"}"}}
+            {{:"}"}}
+        {{:"}"}}
+
+        #endregion
+
+        #region Delete Methods
+
+        {{:"/// <summary>"}}
+        {{:"/// Deletes the specified "}}{{:TableName}}
+        {{:"/// </summary>"}}
+        public void Delete{{:TableName}}()
+        {{:"{"}}
+            sqlManager.ExcecuteNonQuery("Delete{{:TableName}}", CommandType.StoredProcedure, new List<SqlParameter>() {{:"{"}} 
+                SQL.SQLParameter("{{:IdentityColumn}}", {{:IdentityEnumType}}, {{:IdentityColumn}})
+            {{:"}"}});
+        {{:"}"}}
+
+        #endregion
+    {{:"}"}}
+{{:"}"}}
+    </script>
+</div>

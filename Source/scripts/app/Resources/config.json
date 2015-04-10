@@ -1,0 +1,32 @@
+﻿{
+    "Views": [
+        {
+            "title": "Welcome",
+            "key": "home",
+            "location": "views/home/index.html",
+            "menu": "views/home/index_menu.html",
+            "breadcrumbs": [ "home" ]
+        },
+        {
+            "title": "Connect to DB",
+            "key": "connect",
+            "location": "views/connect/connDetils.html",
+            "menu": "views/connect/menu.html",
+            "breadcrumbs": [ "home", "connect" ]
+        },
+        {
+            "title": "Select tables",
+            "key": "select_tables",
+            "location": "views/tables/list.html",
+            "menu": "views/tables/menu.html",
+            "breadcrumbs": [ "home", "select_tables" ]
+        },
+        {
+            "title": "Select export folder",
+            "key": "export_poco_folder",
+            "location": "views/exportPOCO/folder.html",
+            "menu": "views/exportPOCO/menu.html",
+            "breadcrumbs": [ "home", "select_tables", "export_poco_folder" ]
+        }
+    ]
+}

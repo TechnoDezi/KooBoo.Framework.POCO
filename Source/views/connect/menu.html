@@ -1,0 +1,31 @@
+﻿<script type="text/javascript">
+    $(function () {
+        function MenuViewModel() {
+            var self = this;
+
+            //Properties
+
+            //Functions
+            self.init = function () {
+
+            }
+
+            //Events
+            self.HomeClick = function (project, event) {
+                App.NavigateHome();
+            }
+
+            //Load View Model
+            self.init();
+        }
+
+        ko.applyBindings(new MenuViewModel(), document.getElementById("connectMenu"));
+    });
+</script>
+<div id="connectMenu">
+    <ul class="nav sidebar-nav nav-pills nav-stacked">
+        <li>
+            <a href="#" data-bind="click:HomeClick"><span class="fa fa-home fa-fw"></span> Home</a>
+        </li>
+    </ul>
+</div>

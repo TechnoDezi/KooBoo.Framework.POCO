@@ -1,0 +1,98 @@
+﻿<script type="text/javascript">
+    $(function () {
+        function TablesListViewModel() {
+            var self = this;
+
+            //Properties
+            self.tablesList = ko.observableArray([]);
+
+            self.TableObj = function (tableName, type, schema) {
+                this.tableName = tableName;
+                this.type = type;
+                this.schema = schema;
+                this.isChecked = ko.observable(false);
+            }
+
+            //Functions
+            self.init = function () {
+                App.Variables.SelectedTables = [];
+
+                //Get tables from DB
+                App.ConnectSql(function (connection) {
+                    var request = new App.sql.Request(connection);
+
+                    request.query('SELECT * FROM information_schema.tables', function (err, recordset) {
+                        if (err != null && err.code != "") {
+                            bootbox.alert(err.message, function () { });
+                        }
+                        else {
+                            $(recordset).each(function (index, table) {
+                                self.tablesList.push(new self.TableObj(
+                                    table.TABLE_NAME,
+                                    table.TABLE_TYPE,
+                                    table.TABLE_SCHEMA
+                                ));
+                            });
+                        }
+                    });
+
+                });
+            }
+
+            //Events
+            self.TableClick = function (data, event) {
+                data.isChecked(!data.isChecked());
+            }
+            self.cancelClick = function (data, event) {
+                App.PageManager.NavigateBack();
+            }
+            self.ExportPOCOClick = function () {
+                //Get selected items
+                var selectedTables = $.grep(self.tablesList(), function (table) {
+                    return table.isChecked();
+                });
+
+                if (selectedTables != undefined && selectedTables.length > 0)
+                {
+                    App.Variables.SelectedTables = selectedTables;
+                    App.PageManager.LoadPage("export_poco_folder");
+                }
+                else
+                {
+                    bootbox.alert("Please select tables to export", function () { });
+                }
+            }
+
+            //Load View Model
+            self.init();
+        }
+
+        App.Variables.activePageViewModel = new TablesListViewModel();
+        ko.applyBindings(App.Variables.activePageViewModel, document.getElementById("TablesList"));
+    });
+</script>
+
+<div id="TablesList">
+    <div class="row">
+        <div class="col-md-12">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Selected</th>
+                        <th>Table Name</th>
+                        <th>Type</th>
+                        <th>Schema</th>
+                    </tr>
+                </thead>
+                <tbody data-bind="foreach: tablesList">
+                    <tr class="cursor-pointer" data-bind="click: $parent.TableClick">
+                        <td align="center"><input type="checkbox" data-bind="checked: isChecked" /></td>
+                        <td data-bind="text: tableName"></td>
+                        <td data-bind="text: type"></td>
+                        <td data-bind="text: schema"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,75 @@
+﻿<script type="text/javascript">
+    $(function () {
+        function ConnectViewModel() {
+            var self = this;
+
+            //Properties
+            self.user = ko.observable();
+            self.password = ko.observable();
+            self.server = ko.observable();
+            self.database = ko.observable();
+            self.encrypt = ko.observable(false);
+
+            //Functions
+            self.init = function () {
+                self.user(App.Variables.ConnectionConfig.user);
+                self.password(App.Variables.ConnectionConfig.password);
+                self.server(App.Variables.ConnectionConfig.server);
+                self.database(App.Variables.ConnectionConfig.database);
+                self.encrypt(App.Variables.ConnectionConfig.options.encrypt);
+            }
+
+            //Events
+            self.FormSubmit = function () {
+                //Set Config
+                App.Variables.ConnectionConfig.user = self.user();
+                App.Variables.ConnectionConfig.password = self.password();
+                App.Variables.ConnectionConfig.server = self.server();
+                App.Variables.ConnectionConfig.database = self.database();
+                App.Variables.ConnectionConfig.options.encrypt = self.encrypt();
+
+                App.ConnectSql(function (connection) {
+                    App.PageManager.LoadPage("select_tables");
+                });
+
+            }
+            self.cancelClick = function (data, event) {
+                App.PageManager.NavigateBack();
+            }
+
+            //Load View Model
+            self.init();
+        }
+
+        App.Variables.activePageViewModel = new ConnectViewModel();
+        ko.applyBindings(App.Variables.activePageViewModel, document.getElementById("ConnectForm"));
+    });
+</script>
+
+<div id="ConnectForm">
+    <form data-bind="submit:FormSubmit">
+        <div class="form-group">
+            <label>Server</label>
+            <input type="text" class="form-control" data-bind="value:server" placeholder="Enter server name localhost\\instance" required>
+        </div>
+        <div class="form-group">
+            <label>User</label>
+            <input type="text" data-bind="value: user" class="form-control" required>
+        </div>
+        <div class="form-group">
+            <label>Password</label>
+            <input type="password" class="form-control" data-bind="value:password" required>
+        </div>
+        <div class="form-group">
+            <label>Database</label>
+            <input type="text" data-bind="value: database" class="form-control" required>
+        </div>
+        <div class="checkbox">
+            <label>
+                <input type="checkbox" data-bind="checked: encrypt"> Encrypt connection
+            </label>
+        </div>
+        <button type="button" class="btn btn-default" data-bind="click: cancelClick">Cancel</button>
+        <button type="submit" class="btn btn-primary">Connect</button>
+    </form>
+</div>

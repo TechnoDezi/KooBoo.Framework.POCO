@@ -1,0 +1,37 @@
+﻿<script type="text/javascript">
+    $(function () {
+        function MenuViewModel() {
+            var self = this;
+
+            //Properties
+
+            //Functions
+            self.init = function () {
+
+            }
+
+            //Events
+            self.HomeClick = function (project, event) {
+                App.NavigateHome();
+            }
+            self.ExportPOCOClick = function (project, event) {
+                App.Variables.activePageViewModel.ExportPOCOClick();
+            }
+
+            //Load View Model
+            self.init();
+        }
+
+        ko.applyBindings(new MenuViewModel(), document.getElementById("connectMenu"));
+    });
+</script>
+<div id="connectMenu">
+    <ul class="nav sidebar-nav nav-pills nav-stacked">
+        <li>
+            <a href="#" data-bind="click:HomeClick"><span class="fa fa-home fa-fw"></span> Home</a>
+        </li>
+        <li>
+            <a href="#" data-bind="click:ExportPOCOClick"><span class="fa fa-database fa-fw"></span> Export POCO Classes</a>
+        </li>
+    </ul>
+</div>
