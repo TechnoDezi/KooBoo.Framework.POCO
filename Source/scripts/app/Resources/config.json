@@ -27,6 +27,13 @@
             "location": "views/exportPOCO/folder.html",
             "menu": "views/exportPOCO/menu.html",
             "breadcrumbs": [ "home", "select_tables", "export_poco_folder" ]
+        },
+        {
+            "title": "Select export folder",
+            "key": "export_procs_folder",
+            "location": "views/exportProcs/folder.html",
+            "menu": "views/exportProcs/menu.html",
+            "breadcrumbs": [ "home", "select_tables", "export_procs_folder" ]
         }
     ]
 }

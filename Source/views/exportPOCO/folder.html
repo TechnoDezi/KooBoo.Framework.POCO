@@ -9,12 +9,30 @@
             self.tmplPreview = ko.observable();
             self.namespace = ko.observable("SomeNamespace.ModuleName");
             self.baseClass = ko.observable("BusinessBase");
+            self.classTemplate = ko.observable();
+            self.baseClassTemplate = ko.observable();
+            self.exportBase = ko.observable(true);
 
             //Functions
             self.init = function () {
-                self.tablesCount(App.Variables.SelectedTables.length);
+                self.LoadClassTemplate();
 
+                self.tablesCount(App.Variables.SelectedTables.length);
                 self.renderFirstTablePreview();
+            }
+            self.LoadClassTemplate = function()
+            {
+                $.ajaxSetup({ cache: false });
+
+                //Load the class resources
+                $.get("scripts/app/Resources/ClassTemplate.js", function (response) {
+                    self.classTemplate(response);
+                }).error(function (msg) { console.log(msg); });
+
+                //Load the base class resources
+                $.get("scripts/app/Resources/BaseClassTemplate.js", function (response) {
+                    self.baseClassTemplate(response);
+                }).error(function (msg) { console.log(msg); });
             }
             self.renderFirstTablePreview = function()
             {
@@ -31,12 +49,14 @@
                     IdentityType: "",
                     IdentityEnumType: "",
                     namespace: "",
-                    baseClass: ""
+                    baseClass: "",
+                    exportBase: ""
                 }
                 var data = objTeml;
                 data.TableName = tableName;
                 data.namespace = self.namespace();
                 data.baseClass = self.baseClass();
+                data.exportBase = self.exportBase();
 
                 //Get columns for first table
                 App.ConnectSql(function (connection) {
@@ -70,6 +90,18 @@
 
                 });
 
+            }
+            self.GetBaseData = function(callback)
+            {
+                var objTeml = {
+                    namespace: "",
+                    baseClass: ""
+                }
+                var data = objTeml;
+                data.namespace = self.namespace();
+                data.baseClass = self.baseClass();
+
+                callback(data);
             }
             self.GetDataType = function(typeNam)
             {
@@ -120,12 +152,20 @@
 
             //Events
             self.FormSubmit = function () {
+                //Generate normal tables
                 $(App.Variables.SelectedTables).each(function (index, table) {
                     self.GetTableData(table.tableName, function (data) {
                         var classText = $("#classTemplate").render(data);
                         self.writeTextFile(classText, table.tableName + ".cs");
                     });
                 });
+                //Generate base class
+                if (self.exportBase()) {
+                    self.GetBaseData(function (data) {
+                        var classText = $("#baseClassTemplate").render(data);
+                        self.writeTextFile(classText, self.baseClass() + ".cs");
+                    });
+                }
                 bootbox.alert("Classes exported to " + self.folder() + "\\", function () { });
             }
             self.cancelClick = function (data, event) {
@@ -157,6 +197,11 @@
             <label>Base Class</label>
             <input type="text" data-bind="value: baseClass" class="form-control" required>
         </div>
+        <div class="checkbox">
+            <label>
+                <input type="checkbox" data-bind="checked: exportBase"> Export base class
+            </label>
+        </div>
         <div class="form-group">
             <label>Select a folder to export to</label>
             <input type="file" nwdirectory data-bind="value:folder" required />
@@ -167,110 +212,6 @@
     <br />
     <h3>Export Preview</h3>
     <textarea rows="25" class="form-control" data-bind="value:tmplPreview"></textarea>
-    <script id="classTemplate" type="text/x-jquery-tmpl">
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Data;
-using System.Data.SqlClient;
-using KooBoo.Framework;
-using KooBoo.Framework.Data;
-
-namespace {{:namespace}}
-{{:"{"}}
-    public class {{:TableName}} : {{:baseClass}}
-    {{:"{"}}
-        #region Properties
-
-        {{for Columns}}public {{:DataType}} {{:ColumnName}} {{:"{"}} get; set; {{:"}"}} 
-        {{/for}}
-        #endregion
-
-        #region Select Methods
-                    
-        {{:"/// <summary>"}}
-        {{:"/// Selects the details for the specified"}}{{:TableName}}
-        {{:"/// </summary>"}}
-        {{:"/// <returns></returns>"}}
-        public void Select{{:TableName}}Details()
-        {{:"{"}}
-            DataTable dt = sqlManager.ExcecuteDataTable("Select{{:TableName}}Details", CommandType.StoredProcedure, new List<SqlParameter>() {{:"{"}} 
-                SQL.SQLParameter("{{:IdentityColumn}}", {{:IdentityEnumType}}, {{:IdentityColumn}})
-            {{:"}"}});
-
-            if (dt.Rows.Count > 0)
-            {{:"{"}}
-                {{for Columns}}{{:ColumnName}} = dt.GetDataCellValue(0, "{{:ColumnName}}"){{if IsIntColumn}}.ToInt32(){{/if}};
-                {{/for}}
-            {{:"}"}}
-        {{:"}"}}
-
-        {{:"/// <summary>"}}
-        {{:"/// Selects a list of all "}}{{:TableName}} {{:"for the search criteria"}}
-        {{:"/// </summary>"}}
-        {{:"/// <returns></returns>"}}
-        public List{{:"<"}}{{:TableName}}{{:">"}} Select{{:TableName}}ListSearch(string searchValue)
-        {{:"{"}}
-            List{{:"<"}}{{:TableName}}{{:">"}} list = new List{{:"<"}}{{:TableName}}{{:">"}}();
-
-            DataTable dt = sqlManager.ExcecuteDataTable("Select{{:TableName}}ListSearch", CommandType.StoredProcedure, new List<SqlParameter>() {{:"{"}} 
-                SQL.SQLParameter("SearchValue", SqlDbType.VarChar, searchValue)
-            {{:"}"}});
-
-            if (dt.Rows.Count > 0)
-            {{:"{"}}
-                list = (from d in dt.AsEnumerable()
-                        select new {{:TableName}}
-                        {{:"{"}}
-                            {{for Columns}}{{:ColumnName}} = d.Field{{:"<"}}{{:DataType}}{{:">"}}("{{:ColumnName}}"),
-                            {{/for}}
-                        {{:"}"}}).ToList{{:"<"}}{{:TableName}}{{:">"}}();
-            {{:"}"}}
-
-            return list;
-        {{:"}"}}
-
-        #endregion
-
-        #region Insert Update Methods
-
-        {{:"/// <summary>"}}
-        {{:"/// Inserts or updates the specified "}}{{:TableName}}
-        {{:"/// </summary>"}}
-        public void InsertUpdate{{:TableName}}()
-        {{:"{"}}
-            sqlManager.ExcecuteNonQuery("InsertUpdate{{:TableName}}", CommandType.StoredProcedure, new List<SqlParameter>()
-            {{:"{"}} 
-                {{for Columns}}SQL.SQLParameter("{{:ColumnName}}", {{:EnumDataType}}, {{:ColumnName}}),
-                {{/for}}SQL.SQLParameter("{{:IdentityColumn}}Out", {{:IdentityEnumType}}, 4, ParameterDirection.Output)
-            {{:"}"}});
-
-            //Set output values
-            if (sqlManager.currentCommand != null)
-            {{:"{"}}
-                if (sqlManager.currentCommand.Parameters["{{:IdentityColumn}}Out"].Value != DBNull.Value)
-                {{:"{"}}
-                    {{:IdentityColumn}} = ({{:IdentityType}})sqlManager.currentCommand.Parameters["{{:IdentityColumn}}Out"].Value;
-                {{:"}"}}
-            {{:"}"}}
-        {{:"}"}}
-
-        #endregion
-
-        #region Delete Methods
-
-        {{:"/// <summary>"}}
-        {{:"/// Deletes the specified "}}{{:TableName}}
-        {{:"/// </summary>"}}
-        public void Delete{{:TableName}}()
-        {{:"{"}}
-            sqlManager.ExcecuteNonQuery("Delete{{:TableName}}", CommandType.StoredProcedure, new List<SqlParameter>() {{:"{"}} 
-                SQL.SQLParameter("{{:IdentityColumn}}", {{:IdentityEnumType}}, {{:IdentityColumn}})
-            {{:"}"}});
-        {{:"}"}}
-
-        #endregion
-    {{:"}"}}
-{{:"}"}}
-    </script>
+    <script id="classTemplate" type="text/x-jquery-tmpl" data-bind="text: classTemplate"></script>
+    <script id="baseClassTemplate" type="text/x-jquery-tmpl" data-bind="text: baseClassTemplate"></script>
 </div>

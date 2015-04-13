@@ -14,11 +14,8 @@
             self.HomeClick = function (project, event) {
                 App.NavigateHome();
             }
-            self.ExportPOCOClick = function (project, event) {
-                App.Variables.activePageViewModel.ExportPOCOClick();
-            }
-            self.ExportProcsClick = function (project, event) {
-                App.Variables.activePageViewModel.ExportProcsClick();
+            self.BackClick = function (project, event) {
+                App.PageManager.NavigateBack();
             }
 
             //Load View Model
@@ -34,10 +31,7 @@
             <a href="#" data-bind="click:HomeClick"><span class="fa fa-home fa-fw"></span> Home</a>
         </li>
         <li>
-            <a href="#" data-bind="click:ExportPOCOClick"><span class="fa fa-database fa-fw"></span> Export POCO Classes</a>
-        </li>
-        <li>
-            <a href="#" data-bind="click:ExportProcsClick"><span class="fa fa-database fa-fw"></span> Export Stored Procedures</a>
+            <a href="#" data-bind="click:BackClick"><span class="fa fa-undo fa-fw"></span> Back to Tables</a>
         </li>
     </ul>
 </div>

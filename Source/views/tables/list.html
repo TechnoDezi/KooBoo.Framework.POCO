@@ -62,6 +62,19 @@
                     bootbox.alert("Please select tables to export", function () { });
                 }
             }
+            self.ExportProcsClick = function () {
+                var selectedTables = $.grep(self.tablesList(), function (table) {
+                    return table.isChecked();
+                });
+
+                if (selectedTables != undefined && selectedTables.length > 0) {
+                    App.Variables.SelectedTables = selectedTables;
+                    App.PageManager.LoadPage("export_procs_folder");
+                }
+                else {
+                    bootbox.alert("Please select tables to export", function () { });
+                }
+            }
 
             //Load View Model
             self.init();

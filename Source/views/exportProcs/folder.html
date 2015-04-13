@@ -1,0 +1,193 @@
+﻿<script type="text/javascript">
+    $(function () {
+        function FolderViewModel() {
+            var self = this;
+
+            //Properties
+            self.folder = ko.observable();
+            self.tablesCount = ko.observable(0);
+            self.tmplPreview = ko.observable();
+            self.author = ko.observable("POCO Generator");
+            self.selectDetailsTemplate = ko.observable();
+            self.selectSearchListTemplate = ko.observable();
+            self.insertUpdateTemplate = ko.observable();
+            self.deleteTemplate = ko.observable();
+
+            //Functions
+            self.init = function () {
+                self.LoadClassTemplate();
+
+                self.tablesCount(App.Variables.SelectedTables.length);
+                self.renderFirstTablePreview();
+            }
+            self.LoadClassTemplate = function()
+            {
+                $.ajaxSetup({ cache: false });
+
+                $.get("scripts/app/Resources/SP_SelectDetailsTemplate.js", function (response) {
+                    self.selectDetailsTemplate(response);
+                }).error(function (msg) { console.log(msg); });
+
+                $.get("scripts/app/Resources/SP_SelectSearchListTemplate.js", function (response) {
+                    self.selectSearchListTemplate(response);
+                }).error(function (msg) { console.log(msg); });
+
+                $.get("scripts/app/Resources/SP_InsertUpdateTemplate.js", function (response) {
+                    self.insertUpdateTemplate(response);
+                }).error(function (msg) { console.log(msg); });
+
+                $.get("scripts/app/Resources/SP_DeleteTemplate.js", function (response) {
+                    self.deleteTemplate(response);
+                }).error(function (msg) { console.log(msg); });
+            }
+            self.renderFirstTablePreview = function()
+            {
+                self.GetTableData(App.Variables.SelectedTables[0].tableName, function (data) {
+                    self.tmplPreview($("#selectDetailsTemplate").render(data));
+                });
+            }
+            self.GetTableData = function(tableName, callback)
+            {
+                var objTeml = {
+                    author: "",
+                    TableName: "",
+                    Columns: [],
+                    IdentityColumn: "",
+                    IdentityType: "",
+                    IdentitySQLDatType: ""
+                }
+                var data = objTeml;
+                data.author = self.author();
+                data.TableName = tableName;
+
+                //Get columns for first table
+                App.ConnectSql(function (connection) {
+                    var request = new App.sql.Request(connection);
+
+                    request.query("exec sp_columns '" + data.TableName + "'", function (err, recordset) {
+                        if (err != null && err.code != "") {
+                            bootbox.alert(err.message, function () { });
+                        }
+                        else {
+                            $(recordset).each(function (index, column) {
+                                if (column.TYPE_NAME.toLowerCase().indexOf("identity") > 0)
+                                {
+                                    data.IdentityColumn = column.COLUMN_NAME;
+                                    data.IdentitySQLDatType = self.GetSqlDataType(column.TYPE_NAME, column.PRECISION, column.SCALE);
+                                }
+
+                                var sqlDatType = self.GetSqlDataType(column.TYPE_NAME, column.PRECISION, column.SCALE);
+                                data.Columns.push({
+                                    ColumnName: column.COLUMN_NAME,
+                                    SQLDatType: sqlDatType
+                                });
+                            });
+
+                            callback(data);
+                        }
+                    });
+
+                });
+
+            }
+            self.GetSqlDataType = function (typeNam, precision, scale) {
+                var value = "";
+
+                switch (typeNam.toLowerCase()) {
+                    case "int identity": value = "int"; break;
+                    case "int": value = "int"; break;
+                    case "datetime": value = "datetime"; break;
+                    case "varchar": value = "varchar(" + precision + ")"; break;
+                    case "text": value = "text"; break;
+                    case "decimal": value = "decimal(" + precision + "," + scale + ")"; break;
+                    case "numeric": value = "numeric(" + precision + "," + scale + ")"; break;
+                    case "bigint": value = "bigint"; break;
+                    case "bit": value = "bit"; break;
+                    case "image": value = "image"; break;
+                    case "uniqueidentifier": value = "uniqueidentifier"; break;
+                }
+
+                return value;
+            }
+            self.writeTextFile = function(text, fileName)
+            {
+                App.fileSystem.writeFile(self.folder() + "\\" + fileName, text, function (err) {
+                    
+                });
+            }
+
+            //Events
+            self.FormSubmit = function () {
+                //Generate select details
+                $(App.Variables.SelectedTables).each(function (index, table) {
+                    self.GetTableData(table.tableName, function (data) {
+                        var classText = $("#selectDetailsTemplate").render(data);
+                        self.writeTextFile(classText, "Select" + table.tableName + "Details" + ".sql");
+                    });
+                });
+                //Generate search select list
+                $(App.Variables.SelectedTables).each(function (index, table) {
+                    self.GetTableData(table.tableName, function (data) {
+                        var classText = $("#selectSearchListTemplate").render(data);
+                        self.writeTextFile(classText, "Select" + table.tableName + "ListSearch" + ".sql");
+                    });
+                });
+                //Generate insert update
+                $(App.Variables.SelectedTables).each(function (index, table) {
+                    self.GetTableData(table.tableName, function (data) {
+                        var classText = $("#insertUpdateTemplate").render(data);
+                        self.writeTextFile(classText, "InsertUpdate" + table.tableName + ".sql");
+                    });
+                });
+                //Generate delete
+                $(App.Variables.SelectedTables).each(function (index, table) {
+                    self.GetTableData(table.tableName, function (data) {
+                        var classText = $("#deleteTemplate").render(data);
+                        self.writeTextFile(classText, "Delete" + table.tableName + ".sql");
+                    });
+                });
+                bootbox.alert("Procs exported to " + self.folder() + "\\", function () { });
+            }
+            self.cancelClick = function (data, event) {
+                App.PageManager.NavigateBack();
+            }
+
+            //Load View Model
+            self.init();
+        }
+
+        App.Variables.activePageViewModel = new FolderViewModel();
+        ko.applyBindings(App.Variables.activePageViewModel, document.getElementById("SelectFolder"));
+    });
+</script>
+
+<div id="SelectFolder">
+    <form data-bind="submit:FormSubmit">
+        <div class="form-group">
+            <label class="control-label">Selected Tables</label>
+            <div>
+                <span class="form-control-static" data-bind="text: tablesCount"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Author</label>
+            <input type="text" data-bind="value: author" class="form-control" required>
+        </div>
+        <div class="form-group">
+            <label>Select a folder to export to</label>
+            <input type="file" nwdirectory data-bind="value:folder" required />
+            <p class="help-block">Export to: <span data-bind="text: folder"></span></p>
+        </div>
+        <button type="submit" class="btn btn-primary">Export Procs</button>
+    </form>
+    <br />
+    <h3>Export Preview</h3>
+    <textarea rows="25" class="form-control" data-bind="value:tmplPreview"></textarea>
+    <script id="selectDetailsTemplate" type="text/x-jquery-tmpl" data-bind="text: selectDetailsTemplate"></script>
+    <script id="selectSearchListTemplate" type="text/x-jquery-tmpl" data-bind="text: selectSearchListTemplate">
+    </script>
+    <script id="insertUpdateTemplate" type="text/x-jquery-tmpl" data-bind="text: insertUpdateTemplate">
+    </script>
+    <script id="deleteTemplate" type="text/x-jquery-tmpl" data-bind="text: deleteTemplate">
+    </script>
+</div>
