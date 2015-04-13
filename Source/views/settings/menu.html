@@ -14,30 +14,30 @@
             self.HomeClick = function (project, event) {
                 App.NavigateHome();
             }
-            self.ExportPOCOClick = function (project, event) {
-                App.Variables.activePageViewModel.ExportPOCOClick();
+            self.TemplatesClick = function (project, event) {
+                
             }
-            self.ExportProcsClick = function (project, event) {
-                App.Variables.activePageViewModel.ExportProcsClick();
+            self.ConnectionClick = function (project, event) {
+
             }
 
             //Load View Model
             self.init();
         }
 
-        ko.applyBindings(new MenuViewModel(), document.getElementById("connectMenu"));
+        ko.applyBindings(new MenuViewModel(), document.getElementById("Menu"));
     });
 </script>
-<div id="connectMenu">
+<div id="Menu">
     <ul class="nav sidebar-nav nav-pills nav-stacked">
         <li>
             <a href="#" data-bind="click:HomeClick"><span class="fa fa-home fa-fw"></span> Home</a>
         </li>
         <li>
-            <a href="#" data-bind="click:ExportPOCOClick"><span class="fa fa-code fa-fw"></span> Export POCO Classes</a>
+            <a href="#" data-bind="click:TemplatesClick"><span class="fa fa-file-text fa-fw"></span> Templates</a>
         </li>
         <li>
-            <a href="#" data-bind="click:ExportProcsClick"><span class="fa fa-database fa-fw"></span> Export Stored Procedures</a>
+            <a href="#" data-bind="click:ConnectionClick"><span class="fa fa-database fa-fw"></span> Default DB Connection</a>
         </li>
     </ul>
 </div>

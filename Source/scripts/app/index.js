@@ -45,6 +45,9 @@
             App.PageManager.LoadPage(data.key);
         }
     }
+    self.ConfigClick = function (data, event) {
+        App.PageManager.LoadPage("settings");
+    }
 
     //Load View Model
     self.init();

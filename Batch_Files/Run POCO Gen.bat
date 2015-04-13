@@ -1,1 +1,1 @@
-nwbuild -r "C:\Users\TechnoDezi\Development\GitHub\KooBoo.Framework.POCO\Source" -v 0.12.0
+nwbuild -r "..\Source" -v 0.12.0

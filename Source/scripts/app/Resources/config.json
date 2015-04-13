@@ -34,6 +34,13 @@
             "location": "views/exportProcs/folder.html",
             "menu": "views/exportProcs/menu.html",
             "breadcrumbs": [ "home", "select_tables", "export_procs_folder" ]
+        },
+        {
+            "title": "Settings",
+            "key": "settings",
+            "location": "views/settings/index.html",
+            "menu": "views/settings/menu.html",
+            "breadcrumbs": [ "home", "settings" ]
         }
     ]
 }

@@ -45,21 +45,12 @@ h1,h2,h3{
     padding: 14px 0 0 0;
     color:white;
 }
-    .login-right ul {
-        list-style:none;
-        vertical-align: middle; 
-    }
-    .login-right li {
-        display:inline;
-        padding-left:15px;
-        padding-right:5px;
-    }
 
-        .login-right li a {
-            text-decoration:none;
-            color:#404040;
-            font-size:14px;
-        }
+    .login-right a {
+        text-decoration: none;
+        color: #009c14;
+        font-size: 22px;
+    }
 
 
 .submenuItems ul {

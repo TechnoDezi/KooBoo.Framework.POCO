@@ -1,0 +1,26 @@
+﻿<script type="text/javascript">
+    $(function () {
+        function SettingsViewModel() {
+            var self = this;
+
+            //Properties
+
+            //Functions
+            self.init = function () {
+                
+            }
+
+            //Events
+
+            //Load View Model
+            self.init();
+        }
+
+        App.Variables.activePageViewModel = new SettingsViewModel();
+        ko.applyBindings(App.Variables.activePageViewModel, document.getElementById("Settings"));
+    });
+</script>
+
+<div id="Settings">
+    
+</div>
