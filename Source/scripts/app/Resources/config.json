@@ -55,6 +55,13 @@
             "location": "views/templates/edit.html",
             "menu": "views/settings/menu.html",
             "breadcrumbs": [ "home", "settings", "settings_tmpl_list", "settings_tmpl_edit" ]
+        },
+        {
+            "title": "Default Connection",
+            "key": "settings_connection_edit",
+            "location": "views/settings/connDetils.html",
+            "menu": "views/settings/menu.html",
+            "breadcrumbs": [ "home", "settings", "settings_connection_edit" ]
         }
     ]
 }

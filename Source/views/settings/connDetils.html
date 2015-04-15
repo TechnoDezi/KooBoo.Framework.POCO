@@ -12,29 +12,16 @@
 
             //Functions
             self.init = function () {
-
-                //Load last connection details
-                if (App.Variables.ConnectionConfig.user != "") {
-                    self.user(App.Variables.ConnectionConfig.user);
-                    self.password(App.Variables.ConnectionConfig.password);
-                    self.server(App.Variables.ConnectionConfig.server);
-                    self.database(App.Variables.ConnectionConfig.database);
-                    self.encrypt(App.Variables.ConnectionConfig.options.encrypt);
-                }
-                else
-                {
-                    //Load default connection from DB
-                    App.Connections.FindByCode(App.Constants.Enums.Connections.DEFAULT).then(function (connection) {
-                        if (!$.isEmptyObject(connection)) {
-
-                            self.user(connection.user);
-                            self.password(connection.password);
-                            self.server(connection.server);
-                            self.database(connection.database);
-                            self.encrypt(connection.encrypt);
-                        }
-                    });
-                }
+                //Load default connection from DB
+                App.Connections.FindByCode(App.Constants.Enums.Connections.DEFAULT).then(function (connection) {
+                    if (!$.isEmptyObject(connection)) {
+                        self.user(connection.user);
+                        self.password(connection.password);
+                        self.server(connection.server);
+                        self.database(connection.database);
+                        self.encrypt(connection.encrypt);
+                    }
+                });
             }
 
             //Events
@@ -47,7 +34,19 @@
                 App.Variables.ConnectionConfig.options.encrypt = self.encrypt();
 
                 App.ConnectSql(function (connection) {
-                    App.PageManager.LoadPage("select_tables");
+                    //Save to DB
+                    App.Connections.InsertUpdate(
+                        App.Constants.Enums.Connections.DEFAULT,
+                        self.user(),
+                        self.password(),
+                        self.server(),
+                        self.database(),
+                        self.encrypt()
+                    ).then(function (id) {
+                        if (id != "" && id != null) {
+                            App.PageManager.LoadPage("settings", false);
+                        }
+                    });
                 });
 
             }
@@ -88,6 +87,6 @@
             </label>
         </div>
         <button type="button" class="btn btn-default" data-bind="click: cancelClick">Cancel</button>
-        <button type="submit" class="btn btn-primary">Connect</button>
+        <button type="submit" class="btn btn-primary">Save</button>
     </form>
 </div>

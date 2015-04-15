@@ -1,4 +1,4 @@
-﻿App.Templates = (function () {
+﻿App.Connections = (function () {
     return {
         FindAll: _FindAll,
         FindByCode: _FindByCode,
@@ -9,7 +9,7 @@
     function _FindAll() {
         var deferred = App.Q.defer();
 
-        App.TemplatesDB.find({}).sort({ dateAdded: 1 }).exec(function (err, docs) {
+        App.ConnectionDB.find({}).exec(function (err, docs) {
             deferred.resolve(docs);
         });
 
@@ -19,14 +19,14 @@
     function _FindByCode(code) {
         var deferred = App.Q.defer();
 
-        App.TemplatesDB.findOne({ code: code }, function (err, doc) {
+        App.ConnectionDB.findOne({ code: code }, function (err, doc) {
             deferred.resolve(doc);
         });
 
         return deferred.promise;
     }
 
-    function _InsertUpdate(templateName, code, templateContent) {
+    function _InsertUpdate(code, user, password, server, database, encrypt) {
         var deferred = App.Q.defer();
 
         _FindByCode(code).then(function (project) {
@@ -34,22 +34,28 @@
             //check insert
             if ($.isEmptyObject(project) || project == null || project == undefined) {
                 project = {
-                    templateName: templateName,
                     code: code,
-                    templateContent: templateContent
+                    user: user,
+                    password: password,
+                    server: server,
+                    database: database,
+                    encrypt: encrypt
                 }
 
-                App.TemplatesDB.insert(project, function (err, newDoc) {
+                App.ConnectionDB.insert(project, function (err, newDoc) {
                     deferred.resolve(newDoc._id);
                 });
             }
             else //Update
             {
-                project.templateName = templateName;
                 project.code = code;
-                project.templateContent = templateContent;
+                project.user = user;
+                project.password = password;
+                project.server = server;
+                project.database = database;
+                project.encrypt = encrypt;
 
-                App.TemplatesDB.update({ _id: project._id }, project, {}, function (err, numReplaced) {
+                App.ConnectionDB.update({ _id: project._id }, project, {}, function (err, numReplaced) {
                     deferred.resolve(project._id);
                 });
             }
@@ -61,7 +67,7 @@
     function _Delete(id) {
         var deferred = App.Q.defer();
 
-        App.TemplatesDB.remove({ _id: id }, {}, function (err, numRemoved) {
+        App.ConnectionDB.remove({ _id: id }, {}, function (err, numRemoved) {
             deferred.resolve(true);
         });
 

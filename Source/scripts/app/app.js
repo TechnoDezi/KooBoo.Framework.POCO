@@ -22,6 +22,13 @@ App.Init = function()
             //afterSerialization: App.EncryptDB,
             //beforeDeserialization: App.DecryptDB
         });
+    App.ConnectionDB = new App.Datastore(
+        {
+            filename: (App.Constants.BaseDBPath + 'connection.db'),
+            autoload: true,
+            afterSerialization: App.EncryptDB,
+            beforeDeserialization: App.DecryptDB
+        });
 }
 App.NavigateHome = function()
 {
@@ -68,4 +75,26 @@ App.ConnectSql = function(successCallback)
         }
 
     });
+}
+App.EncryptDB = function (strData) {
+    if (strData != undefined && strData != "") {
+        var encrypted = App.Crypto.AES.encrypt(strData, App.Constants.DBKey);
+        var ciphertext = encrypted.toString();
+
+        return ciphertext;
+    }
+    else {
+        return strData;
+    }
+}
+App.DecryptDB = function (strData) {
+    if (strData != undefined && strData != "") {
+        var decrypted = App.Crypto.AES.decrypt(strData, App.Constants.DBKey);
+        var plaintext = decrypted.toString(App.Crypto.enc.Utf8);
+
+        return plaintext;
+    }
+    else {
+        return strData;
+    }
 }
