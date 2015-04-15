@@ -1,0 +1,115 @@
+﻿<script type="text/javascript">
+    $(function () {
+        function TemplEditViewModel() {
+            var self = this;
+
+            //Properties
+            self.templateName = ko.observable();
+            self.templateContent = ko.observable();
+            self.isDBLoad = ko.observable(false);
+
+            //Functions
+            self.init = function () {
+                if(App.Variables.SettingsSelectedTempl != "")
+                {
+                    var filename = "";
+
+                    //Try load template from DB
+                    App.Templates.FindByCode(App.Variables.SettingsSelectedTempl).then(function (template) {
+                        if (!$.isEmptyObject(template)) {
+                            
+                            self.isDBLoad(true);
+                            self.templateName(template.templateName);
+                            self.templateContent(template.templateContent);
+                        }
+                        else
+                        {
+                            //Load template from file
+                            switch (App.Variables.SettingsSelectedTempl) {
+                                case App.Constants.Enums.Templates.CCLASS_TEMPL: {
+                                    self.templateName("C# Class Template");
+
+                                    filename = "ClassTemplate.js";
+                                }; break;
+                                case App.Constants.Enums.Templates.CBASE_CLASS_TEMPL: {
+                                    self.templateName("C# Base Class Template");
+
+                                    filename = "BaseClassTemplate.js";
+                                }; break;
+                                case App.Constants.Enums.Templates.SP_SELECTDETAILS_TEMPL: {
+                                    self.templateName("SP Select Details");
+
+                                    filename = "SP_SelectDetailsTemplate.js";
+                                }; break;
+                                case App.Constants.Enums.Templates.SP_SELECTSEARCHLIST_TEMPL: {
+                                    self.templateName("SP Select Search List");
+
+                                    filename = "SP_SelectSearchListTemplate.js";
+                                }; break;
+                                case App.Constants.Enums.Templates.SP_INSERTUPDATE_TEMPL: {
+                                    self.templateName("SP Insert Update");
+
+                                    filename = "SP_InsertUpdateTemplate.js";
+                                }; break;
+                                case App.Constants.Enums.Templates.SP_DELETE_TEMPL: {
+                                    self.templateName("SP Delete");
+
+                                    filename = "SP_DeleteTemplate.js";
+                                }; break;
+                            }
+
+                            //Load resource file
+                            $.get("scripts/app/Resources/" + filename, function (response) {
+                                self.templateContent(response);
+                            }).error(function (msg) { console.log(msg); });
+                        }
+                    });
+                }
+                else
+                {
+                    App.PageManager.LoadPage("settings_tmpl_list");
+                }
+            }
+
+            //Events
+            self.FormSubmit = function () {
+                App.Templates.InsertUpdate(
+                    self.templateName(),
+                    App.Variables.SettingsSelectedTempl,
+                    self.templateContent()
+                ).then(function (id) {
+                    if (id != "" && id != null) {
+                        App.PageManager.LoadPage("settings_tmpl_edit", false);
+                    }
+                });
+            }
+            self.cancelClick = function (data, event) {
+                App.Variables.SettingsSelectedTempl = "";
+                App.PageManager.NavigateBack();
+            }
+
+            //Load View Model
+            self.init();
+        }
+
+        App.Variables.activePageViewModel = new TemplEditViewModel();
+        ko.applyBindings(App.Variables.activePageViewModel, document.getElementById("templEditForm"));
+    });
+</script>
+
+<div id="templEditForm">
+    <form data-bind="submit: FormSubmit">
+        <div class="form-group">
+            <label>Template Name</label>
+            <span data-bind="text: templateName" class="form-control-static"></span>
+        </div>
+        <div class="form-group">
+            <label>Template Content</label>
+            <textarea rows="25" class="form-control" data-bind="value:templateContent" required></textarea>
+        </div>
+        <button type="button" class="btn btn-default" data-bind="click:cancelClick">Cancel</button>
+        <button type="submit" class="btn btn-primary">Update</button>
+    </form>
+</div>
+<br />
+<br />

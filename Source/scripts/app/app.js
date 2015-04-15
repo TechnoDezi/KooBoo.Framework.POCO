@@ -8,11 +8,20 @@ App.moment = require('moment');
 App.cluster = require('cluster');
 App.lodash = require('lodash');
 App.sql = require('mssql');
+App.Datastore = require('nedb');
 
 //App Methods
 App.Init = function()
 {
     App.SetupMenuBar();
+
+    App.TemplatesDB = new App.Datastore(
+        {
+            filename: (App.Constants.BaseDBPath + 'templates.db'),
+            autoload: true
+            //afterSerialization: App.EncryptDB,
+            //beforeDeserialization: App.DecryptDB
+        });
 }
 App.NavigateHome = function()
 {

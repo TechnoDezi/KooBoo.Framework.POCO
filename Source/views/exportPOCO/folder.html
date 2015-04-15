@@ -25,14 +25,28 @@
                 $.ajaxSetup({ cache: false });
 
                 //Load the class resources
-                $.get("scripts/app/Resources/ClassTemplate.js", function (response) {
-                    self.classTemplate(response);
-                }).error(function (msg) { console.log(msg); });
+                App.Templates.FindByCode(App.Constants.Enums.Templates.CCLASS_TEMPL).then(function (template) {
+                    if (!$.isEmptyObject(template)) {
+                        self.classTemplate(template.templateContent);
+                    }
+                    else {
+                        $.get("scripts/app/Resources/ClassTemplate.js", function (response) {
+                            self.classTemplate(response);
+                        }).error(function (msg) { console.log(msg); });
+                    }
+                });
 
                 //Load the base class resources
-                $.get("scripts/app/Resources/BaseClassTemplate.js", function (response) {
-                    self.baseClassTemplate(response);
-                }).error(function (msg) { console.log(msg); });
+                App.Templates.FindByCode(App.Constants.Enums.Templates.CBASE_CLASS_TEMPL).then(function (template) {
+                    if (!$.isEmptyObject(template)) {
+                        self.baseClassTemplate(template.templateContent);
+                    }
+                    else {
+                        $.get("scripts/app/Resources/BaseClassTemplate.js", function (response) {
+                            self.baseClassTemplate(response);
+                        }).error(function (msg) { console.log(msg); });
+                    }
+                });
             }
             self.renderFirstTablePreview = function()
             {

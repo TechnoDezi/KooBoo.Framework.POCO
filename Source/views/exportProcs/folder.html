@@ -24,21 +24,49 @@
             {
                 $.ajaxSetup({ cache: false });
 
-                $.get("scripts/app/Resources/SP_SelectDetailsTemplate.js", function (response) {
-                    self.selectDetailsTemplate(response);
-                }).error(function (msg) { console.log(msg); });
+                App.Templates.FindByCode(App.Constants.Enums.Templates.SP_SELECTDETAILS_TEMPL).then(function (template) {
+                    if (!$.isEmptyObject(template)) {
+                        self.selectDetailsTemplate(template.templateContent);
+                    }
+                    else {
+                        $.get("scripts/app/Resources/SP_SelectDetailsTemplate.js", function (response) {
+                            self.selectDetailsTemplate(response);
+                        }).error(function (msg) { console.log(msg); });
+                    }
+                });
 
-                $.get("scripts/app/Resources/SP_SelectSearchListTemplate.js", function (response) {
-                    self.selectSearchListTemplate(response);
-                }).error(function (msg) { console.log(msg); });
+                App.Templates.FindByCode(App.Constants.Enums.Templates.SP_SELECTSEARCHLIST_TEMPL).then(function (template) {
+                    if (!$.isEmptyObject(template)) {
+                        self.selectSearchListTemplate(template.templateContent);
+                    }
+                    else {
+                        $.get("scripts/app/Resources/SP_SelectSearchListTemplate.js", function (response) {
+                            self.selectSearchListTemplate(response);
+                        }).error(function (msg) { console.log(msg); });
+                    }
+                });
 
-                $.get("scripts/app/Resources/SP_InsertUpdateTemplate.js", function (response) {
-                    self.insertUpdateTemplate(response);
-                }).error(function (msg) { console.log(msg); });
+                App.Templates.FindByCode(App.Constants.Enums.Templates.SP_INSERTUPDATE_TEMPL).then(function (template) {
+                    if (!$.isEmptyObject(template)) {
+                        self.insertUpdateTemplate(template.templateContent);
+                    }
+                    else {
+                        $.get("scripts/app/Resources/SP_InsertUpdateTemplate.js", function (response) {
+                            self.insertUpdateTemplate(response);
+                        }).error(function (msg) { console.log(msg); });
+                    }
+                });
 
-                $.get("scripts/app/Resources/SP_DeleteTemplate.js", function (response) {
-                    self.deleteTemplate(response);
-                }).error(function (msg) { console.log(msg); });
+                App.Templates.FindByCode(App.Constants.Enums.Templates.SP_DELETE_TEMPL).then(function (template) {
+                    if (!$.isEmptyObject(template)) {
+                        self.deleteTemplate(template.templateContent);
+                    }
+                    else {
+                        $.get("scripts/app/Resources/SP_DeleteTemplate.js", function (response) {
+                            self.deleteTemplate(response);
+                        }).error(function (msg) { console.log(msg); });
+                    }
+                });
             }
             self.renderFirstTablePreview = function()
             {

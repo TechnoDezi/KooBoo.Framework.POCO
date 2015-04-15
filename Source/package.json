@@ -41,7 +41,7 @@
         "show_in_taskbar": true, 
         "mac_icon": "", 
         "width": 1000, 
-        "toolbar": false, 
+        "toolbar": true, 
         "icon": "Icon.png"
     }, 
     "version": "1.0.1", 

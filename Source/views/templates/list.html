@@ -1,0 +1,63 @@
+﻿<script type="text/javascript">
+    $(function () {
+        function TmplListViewModel() {
+            var self = this;
+
+            //Properties
+            self.templateList = ko.observableArray([]);
+
+            self.TemplObj = function (templateName, code) {
+                this.templateName = templateName;
+                this.code = code;
+            }
+
+            //Functions
+            self.init = function () {
+                //Populate template list
+
+                self.templateList.push(new self.TemplObj("C# Class Template", App.Constants.Enums.Templates.CCLASS_TEMPL));
+                self.templateList.push(new self.TemplObj("C# Base Class Template", App.Constants.Enums.Templates.CBASE_CLASS_TEMPL));
+                self.templateList.push(new self.TemplObj("SP Select Details", App.Constants.Enums.Templates.SP_SELECTDETAILS_TEMPL));
+                self.templateList.push(new self.TemplObj("SP Select Search List", App.Constants.Enums.Templates.SP_SELECTSEARCHLIST_TEMPL));
+                self.templateList.push(new self.TemplObj("SP Insert Update", App.Constants.Enums.Templates.SP_INSERTUPDATE_TEMPL));
+                self.templateList.push(new self.TemplObj("SP Delete", App.Constants.Enums.Templates.SP_DELETE_TEMPL));
+            }
+
+            //Events
+            self.TableClick = function (data, event) {
+                App.Variables.SettingsSelectedTempl = data.code;
+
+                //Navigate template edit and send code
+                App.PageManager.LoadPage("settings_tmpl_edit");
+            }
+            self.cancelClick = function (data, event) {
+                App.PageManager.NavigateBack();
+            }
+
+            //Load View Model
+            self.init();
+        }
+
+        App.Variables.activePageViewModel = new TmplListViewModel();
+        ko.applyBindings(App.Variables.activePageViewModel, document.getElementById("TmplList"));
+    });
+</script>
+
+<div id="TmplList">
+    <div class="row">
+        <div class="col-md-12">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Template Name</th>
+                    </tr>
+                </thead>
+                <tbody data-bind="foreach: templateList">
+                    <tr class="cursor-pointer" data-bind="click: $parent.TableClick">
+                        <td data-bind="text: templateName"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

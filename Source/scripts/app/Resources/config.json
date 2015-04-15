@@ -41,6 +41,20 @@
             "location": "views/settings/index.html",
             "menu": "views/settings/menu.html",
             "breadcrumbs": [ "home", "settings" ]
+        },
+        {
+            "title": "Templates List",
+            "key": "settings_tmpl_list",
+            "location": "views/templates/list.html",
+            "menu": "views/settings/menu.html",
+            "breadcrumbs": [ "home", "settings", "settings_tmpl_list" ]
+        },
+        {
+            "title": "Template Edit",
+            "key": "settings_tmpl_edit",
+            "location": "views/templates/edit.html",
+            "menu": "views/settings/menu.html",
+            "breadcrumbs": [ "home", "settings", "settings_tmpl_list", "settings_tmpl_edit" ]
         }
     ]
 }
