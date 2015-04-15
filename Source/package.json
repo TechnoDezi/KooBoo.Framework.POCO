@@ -1,9 +1,4 @@
 {
-    "webkit": {
-        "page-cache": false, 
-        "java": false, 
-        "plugin": true
-    }, 
     "webexe_settings": {
         "linux-x32": true, 
         "windows-x64": true, 
@@ -16,23 +11,24 @@
         "force_download": false, 
         "linux-x64": true
     }, 
-    "js-flags": "", 
-    "nodejs": true, 
-    "description": "", 
-    "name": "KooBooPOCOGenerator", 
-    "author": "KooBoo Business", 
-    "chromium-args": "", 
+    "node-main": "", 
     "additional_trust_anchors": "", 
+    "main": "index.html", 
+    "description": "", 
+    "single-instance": true, 
+    "nodejs": true, 
+    "chromium-args": "", 
+    "author": "KooBoo Business", 
     "user-agent": "", 
     "inject-js-end": "", 
     "keywords": [], 
     "window": {
-        "transparent": false, 
         "fullscreen": false, 
         "resizable": true, 
         "title": "KooBoo POCO Generator", 
         "always-on-top": false, 
         "frame": true, 
+        "width": 1000, 
         "height": 750, 
         "exe_icon": "Icon.png", 
         "visible": true, 
@@ -40,26 +36,30 @@
         "position": "center", 
         "show_in_taskbar": true, 
         "mac_icon": "", 
-        "width": 1000, 
-        "toolbar": true, 
+        "transparent": false, 
+        "toolbar": false, 
         "icon": "Icon.png"
     }, 
-    "version": "1.0.1", 
+    "version": "1.1.0", 
     "snapshot": "", 
     "dependencies": {
-        "crypto-js": "~3.1.4", 
-        "mssql": "~2.1.2", 
+        "q": "~1.1.2", 
         "lodash": "~3.2.0", 
         "express": "~4.11.2", 
         "body-parser": "~1.12.0", 
-        "q": "~1.1.2", 
+        "crypto-js": "~3.1.4", 
         "moment": "~2.9.0", 
         "jsoneditor": "~3.2.0", 
+        "mssql": "~2.1.2", 
         "nedb": "~1.1.1"
     }, 
-    "node-remote": "", 
+    "webkit": {
+        "page-cache": false, 
+        "java": false, 
+        "plugin": true
+    }, 
     "inject-js-start": "", 
-    "main": "index.html", 
-    "single-instance": true, 
-    "node-main": ""
+    "node-remote": "", 
+    "js-flags": "", 
+    "name": "KooBooPOCOGenerator"
 }
