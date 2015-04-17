@@ -76,11 +76,11 @@ namespace {{:namespace}}
             {{:"}"}});
 
             //Set output values
-            if (sqlManager.currentCommand != null)
+            if (sqlManager.CurrentCommand != null)
             {{:"{"}}
-                if (sqlManager.currentCommand.Parameters["{{:IdentityColumn}}Out"].Value != DBNull.Value)
+                if (sqlManager.CurrentCommand.Parameters["{{:IdentityColumn}}Out"].Value != DBNull.Value)
                 {{:"{"}}
-                    {{:IdentityColumn}} = ({{:IdentityType}})sqlManager.currentCommand.Parameters["{{:IdentityColumn}}Out"].Value;
+                    {{:IdentityColumn}} = ({{:IdentityType}})sqlManager.CurrentCommand.Parameters["{{:IdentityColumn}}Out"].Value;
                 {{:"}"}}
             {{:"}"}}
         {{:"}"}}
