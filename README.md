@@ -8,7 +8,7 @@ The KooBoo framework is what drives the KooBoo Shop SA ecommerce platform and is
 **Download the latest release from:**
 [https://github.com/TechnoDezi/KooBoo.Framework.POCO/releases](https://github.com/TechnoDezi/KooBoo.Framework.POCO/releases)
 
-**KooBoo Enterprize Framwork**
+**KooBoo Enterprise Framework**
 You can add the KooBoo.Framework refrence to your project from NuGet.
 [https://www.nuget.org/packages/KooBoo.Framework/](https://www.nuget.org/packages/KooBoo.Framework/)
 
