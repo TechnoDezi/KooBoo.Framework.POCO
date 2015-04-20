@@ -98,17 +98,18 @@
                         }
                         else {
                             $(recordset).each(function (index, column) {
-                                if (column.TYPE_NAME.toLowerCase().indexOf("identity") > 0)
-                                {
+                                if (column.TYPE_NAME.toLowerCase().indexOf("identity") > 0) {
                                     data.IdentityColumn = column.COLUMN_NAME;
                                     data.IdentitySQLDatType = self.GetSqlDataType(column.TYPE_NAME, column.PRECISION, column.SCALE);
                                 }
-
-                                var sqlDatType = self.GetSqlDataType(column.TYPE_NAME, column.PRECISION, column.SCALE);
-                                data.Columns.push({
-                                    ColumnName: column.COLUMN_NAME,
-                                    SQLDatType: sqlDatType
-                                });
+                                else {
+                                    var sqlDatType = self.GetSqlDataType(column.TYPE_NAME, column.PRECISION, column.SCALE);
+                                    data.Columns.push({
+                                        ColumnName: column.COLUMN_NAME,
+                                        SQLDatType: sqlDatType,
+                                        LineEnding: ((index+1) < recordset.length) ? "," : ""
+                                    });
+                                }
                             });
 
                             callback(data);

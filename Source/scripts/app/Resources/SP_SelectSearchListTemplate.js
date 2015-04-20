@@ -14,7 +14,8 @@ BEGIN
 	SET @SearchValue = ISNULL(@SearchValue, '')
 
 	SELECT
-		{{for Columns}}{{:ColumnName}},
+        {{:IdentityColumn}},
+		{{for Columns}}{{:ColumnName}}{{:LineEnding}}
         {{/for}}
 	FROM
         {{:TableName}}

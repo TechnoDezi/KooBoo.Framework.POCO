@@ -12,7 +12,8 @@ BEGIN
 	SET NOCOUNT ON;
 
 	SELECT
-		{{for Columns}}{{:ColumnName}},
+        {{:IdentityColumn}},
+        {{for Columns}}{{:ColumnName}}{{:LineEnding}}
         {{/for}}
 	FROM
         {{:TableName}}
