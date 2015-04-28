@@ -30,7 +30,7 @@ namespace {{:namespace}}
 
             if (dt.Rows.Count > 0)
             {{:"{"}}
-                {{for Columns}}{{:ColumnName}} = dt.GetDataCellValue(0, "{{:ColumnName}}"){{if IsIntColumn}}.ToInt32(){{/if}};
+                {{for Columns}}{{:ColumnName}} = dt.GetDataCellValue(0, "{{:ColumnName}}"){{if IsIntColumn}}.ToInt32(){{else IsDateTimeColumn}}.ToDateTime(){{else IsBoolColumn}}.ToBoolean(){{/if}};
                 {{/for}}
             {{:"}"}}
         {{:"}"}}

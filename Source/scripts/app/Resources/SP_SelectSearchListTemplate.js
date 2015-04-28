@@ -15,10 +15,10 @@ BEGIN
 
 	SELECT
         {{:IdentityColumn}},
-		{{for Columns}}{{:ColumnName}}{{:LineEnding}}
+		{{for Columns}}[{{:ColumnName}}]{{:LineEnding}}
         {{/for}}
 	FROM
-        {{:TableName}}
+        [{{:TableName}}]
 	WHERE
 		(
 			ReferenceDescription Like '%' + @SearchValue + '%'

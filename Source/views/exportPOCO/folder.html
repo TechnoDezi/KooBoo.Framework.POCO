@@ -94,6 +94,8 @@
                                     ColumnName: column.COLUMN_NAME,
                                     DataType: datType,
                                     IsIntColumn: (datType == "int") ? true : false,
+                                    IsDateTimeColumn: (datType == "DateTime") ? true : false,
+                                    IsBoolColumn: (datType == "bool") ? true : false,
                                     EnumDataType: self.GetEnumDataType(column.TYPE_NAME)
                                 });
                             });
@@ -124,6 +126,7 @@
                 switch(typeNam.toLowerCase())
                 {
                     case "int identity": value = "int"; break;
+                    case "smallint": value = "int"; break;
                     case "int": value = "int"; break;
                     case "datetime": value = "DateTime"; break;
                     case "varchar": value = "string"; break;
@@ -134,6 +137,8 @@
                     case "bit": value = "bool"; break;
                     case "image": value = "byte[]"; break;
                     case "uniqueidentifier": value = "Guid"; break;
+                    case "smalldatetime": value = "DateTime"; break;
+                    case "nvarchar": value = "string"; break;
                 }
 
                 return value;
@@ -153,6 +158,9 @@
                     case "bit": value = "SqlDbType.Bit"; break;
                     case "image": value = "SqlDbType.Image"; break;
                     case "uniqueidentifier": value = "SqlDbType.UniqueIdentifier"; break;
+                    case "smalldatetime": value = "SqlDbType.SmallDateTime"; break;
+                    case "nvarchar": value = "SqlDbType.NVarChar"; break;
+                    case "smallint": value = "SqlDbType.SmallInt"; break;
                 }
 
                 return value;

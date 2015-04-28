@@ -127,6 +127,7 @@
                     case "int": value = "int"; break;
                     case "datetime": value = "datetime"; break;
                     case "varchar": value = "varchar(" + precision + ")"; break;
+                    case "nvarchar": value = "nvarchar(" + precision + ")"; break;
                     case "text": value = "text"; break;
                     case "decimal": value = "decimal(" + precision + "," + scale + ")"; break;
                     case "numeric": value = "numeric(" + precision + "," + scale + ")"; break;
@@ -134,6 +135,8 @@
                     case "bit": value = "bit"; break;
                     case "image": value = "image"; break;
                     case "uniqueidentifier": value = "uniqueidentifier"; break;
+                    case "smalldatetime": value = "smalldatetime"; break;
+                    case "smallint": value = "smallint"; break;
                 }
 
                 return value;
