@@ -6,17 +6,15 @@
             //Properties
             self.tablesList = ko.observableArray([]);
 
-            self.TableObj = function (tableName, type, schema) {
+            self.TableObj = function (tableName, type, schema, checked) {
                 this.tableName = tableName;
                 this.type = type;
                 this.schema = schema;
-                this.isChecked = ko.observable(false);
+                this.isChecked = ko.observable(checked);
             }
 
             //Functions
             self.init = function () {
-                App.Variables.SelectedTables = [];
-
                 //Get tables from DB
                 App.ConnectSql(function (connection) {
                     var request = new App.sql.Request(connection);
@@ -30,13 +28,34 @@
                                 self.tablesList.push(new self.TableObj(
                                     table.TABLE_NAME,
                                     table.TABLE_TYPE,
-                                    table.TABLE_SCHEMA
+                                    table.TABLE_SCHEMA,
+                                    self.CheckTableSelected(table)
                                 ));
                             });
+
+                            //Clear selected tables
+                            App.Variables.SelectedTables = [];
                         }
                     });
 
                 });
+            }
+
+            self.CheckTableSelected = function(table)
+            {
+                var returnValue = false;
+                
+                if (App.Variables.SelectedTables != undefined) {
+                    var match = $.grep(App.Variables.SelectedTables, function (item) {
+                        return item.tableName == table.TABLE_NAME;
+                    });
+                    
+                    if (match != null && match != undefined && match.length > 0) {
+                        returnValue = true;
+                    }
+                }
+
+                return returnValue;
             }
 
             //Events
@@ -75,6 +94,14 @@
                     bootbox.alert("Please select tables to export", function () { });
                 }
             }
+            self.SelectAll = function()
+            {
+                var selected = self.tablesList()[0].isChecked();
+
+                $.each(self.tablesList(), function (index, item) {
+                    item.isChecked(!selected);
+                });
+            }
 
             //Load View Model
             self.init();
@@ -88,6 +115,10 @@
 <div id="TablesList">
     <div class="row">
         <div class="col-md-12">
+            <div>
+                <a href="#" data-bind="click: SelectAll">Select / De-select All</a>
+            </div>
+            <br />
             <table class="table table-striped">
                 <thead>
                     <tr>

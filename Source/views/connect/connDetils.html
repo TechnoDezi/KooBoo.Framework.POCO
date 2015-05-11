@@ -47,6 +47,9 @@
                 App.Variables.ConnectionConfig.options.encrypt = self.encrypt();
 
                 App.ConnectSql(function (connection) {
+                    //Clear selected tables
+                    App.Variables.SelectedTables = [];
+
                     App.PageManager.LoadPage("select_tables");
                 });
 
