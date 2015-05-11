@@ -80,9 +80,7 @@
                     author: "",
                     TableName: "",
                     Columns: [],
-                    IdentityColumn: "",
-                    IdentityType: "",
-                    IdentitySQLDatType: ""
+                    IdentityColumns: []
                 }
                 var data = objTeml;
                 data.author = self.author();
@@ -97,27 +95,72 @@
                             bootbox.alert(err.message, function () { });
                         }
                         else {
-                            $(recordset).each(function (index, column) {
-                                if (column.TYPE_NAME.toLowerCase().indexOf("identity") > 0) {
-                                    data.IdentityColumn = column.COLUMN_NAME;
-                                    data.IdentitySQLDatType = self.GetSqlDataType(column.TYPE_NAME, column.PRECISION, column.SCALE);
-                                }
-                                else {
-                                    var sqlDatType = self.GetSqlDataType(column.TYPE_NAME, column.PRECISION, column.SCALE);
-                                    data.Columns.push({
-                                        ColumnName: column.COLUMN_NAME,
-                                        SQLDatType: sqlDatType,
-                                        LineEnding: ((index+1) < recordset.length) ? "," : ""
-                                    });
-                                }
-                            });
+                            //Get identity columns
+                            self.GetIdentityColumns(recordset, data.TableName, function (identityColumns) {
+                                data.IdentityColumns = identityColumns;
 
-                            callback(data);
+                                //Process normal columns
+                                $(recordset).each(function (index, column) {
+
+                                    //Check column not in identity column list
+                                    var idColumn = $.grep(data.IdentityColumns, function (item) {
+                                        return item.IdentityColumn.toLowerCase() == column.COLUMN_NAME.toLowerCase();
+                                    });
+
+                                    if (idColumn.length == 0) {
+                                        var sqlDatType = self.GetSqlDataType(column.TYPE_NAME, column.PRECISION, column.SCALE);
+                                        data.Columns.push({
+                                            ColumnName: column.COLUMN_NAME,
+                                            SQLDatType: sqlDatType,
+                                            LineEnding: ((index + 1) < recordset.length) ? "," : ""
+                                        });
+                                    }
+                                });
+
+                                callback(data);
+                            });
                         }
                     });
 
                 });
 
+            }
+            self.GetIdentityColumns = function (tableColumns, tableName, callback) {
+                var IdentityColumns = [];
+
+                var query = "\
+                    SELECT COLUMN_NAME \
+                    FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE \
+                    WHERE OBJECTPROPERTY(OBJECT_ID(constraint_name), 'IsPrimaryKey') = 1 \
+                    AND table_name = '" + tableName + "'";
+
+                App.ConnectSql(function (connection) {
+                    var request = new App.sql.Request(connection);
+
+                    request.query(query, function (err, recordset) {
+                        if (err != null && err.code != "") {
+                            bootbox.alert(err.message, function () { });
+                        }
+                        else {
+                            $(recordset).each(function (index, column) {
+                                //Get original column details
+                                var orColumn = $.grep(tableColumns, function (item) {
+                                    return item.COLUMN_NAME.toLowerCase() == column.COLUMN_NAME.toLowerCase();
+                                });
+
+                                //Add Identity column
+                                IdentityColumns.push({
+                                    IdentityColumn: orColumn[0].COLUMN_NAME,
+                                    IdentitySQLDatType: self.GetSqlDataType(orColumn[0].TYPE_NAME, orColumn[0].PRECISION, orColumn[0].SCALE),
+                                    LineEnding: ((index + 1) < recordset.length) ? "," : "",
+                                    AndLineEnding: ((index + 1) < recordset.length) ? " AND " : "",
+                                });
+                            });
+
+                            callback(IdentityColumns);
+                        }
+                    });
+                });
             }
             self.GetSqlDataType = function (typeNam, precision, scale) {
                 var value = "";

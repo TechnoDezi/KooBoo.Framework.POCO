@@ -5,18 +5,20 @@
 -- =============================================
 CREATE PROCEDURE [dbo].[Select{{:TableName}}Details]
 (
-	@{{:IdentityColumn}} {{:IdentitySQLDatType}}
+    {{for IdentityColumns}}@{{:IdentityColumn}} {{:IdentitySQLDatType}}{{:LineEnding}}
+    {{/for}}
 )
 AS
 BEGIN
 	SET NOCOUNT ON;
 
 	SELECT
-        {{:IdentityColumn}},
-        {{for Columns}}[{{:ColumnName}}]{{:LineEnding}}
+        {{for IdentityColumns}}[{{:IdentityColumn}}],
+        {{/for}}{{for Columns}}[{{:ColumnName}}]{{:LineEnding}}
         {{/for}}
 	FROM
         [{{:TableName}}]
 	WHERE
-		{{:IdentityColumn}} = @{{:IdentityColumn}}
+		{{for IdentityColumns}}{{:IdentityColumn}} = @{{:IdentityColumn}}{{:AndLineEnding}}
+        {{/for}}
 END

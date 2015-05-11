@@ -25,7 +25,8 @@ namespace {{:namespace}}
         public void Select{{:TableName}}Details()
         {{:"{"}}
             DataTable dt = sqlManager.ExcecuteDataTable("Select{{:TableName}}Details", CommandType.StoredProcedure, new List<SqlParameter>() {{:"{"}} 
-                SQL.SQLParameter("{{:IdentityColumn}}", {{:IdentityEnumType}}, {{:IdentityColumn}})
+                {{for IdentityColumns}}SQL.SQLParameter("{{:IdentityColumn}}", {{:IdentityEnumType}}, {{:IdentityColumn}}){{:LineEnding}}
+                {{/for}}
             {{:"}"}});
 
             if (dt.Rows.Count > 0)
@@ -72,16 +73,19 @@ namespace {{:namespace}}
             sqlManager.ExcecuteNonQuery("InsertUpdate{{:TableName}}", CommandType.StoredProcedure, new List<SqlParameter>()
             {{:"{"}} 
                 {{for Columns}}SQL.SQLParameter("{{:ColumnName}}", {{:EnumDataType}}, {{:ColumnName}}),
-                {{/for}}SQL.SQLParameter("{{:IdentityColumn}}Out", {{:IdentityEnumType}}, 4, ParameterDirection.Output)
+                {{/for}}{{for IdentityColumns}}SQL.SQLParameter("{{:IdentityColumn}}Out", {{:IdentityEnumType}}, 4, ParameterDirection.Output){{:LineEnding}}
+                {{/for}}
             {{:"}"}});
 
             //Set output values
             if (sqlManager.CurrentCommand != null)
             {{:"{"}}
-                if (sqlManager.CurrentCommand.Parameters["{{:IdentityColumn}}Out"].Value != DBNull.Value)
-                {{:"{"}}
-                    {{:IdentityColumn}} = ({{:IdentityType}})sqlManager.CurrentCommand.Parameters["{{:IdentityColumn}}Out"].Value;
-                {{:"}"}}
+                {{for IdentityColumns}}
+                    if (sqlManager.CurrentCommand.Parameters["{{:IdentityColumn}}Out"].Value != DBNull.Value)
+                    {{:"{"}}
+                        {{:IdentityColumn}} = ({{:IdentityType}})sqlManager.CurrentCommand.Parameters["{{:IdentityColumn}}Out"].Value;
+                    {{:"}"}}
+                {{/for}}
             {{:"}"}}
         {{:"}"}}
 
@@ -95,7 +99,8 @@ namespace {{:namespace}}
         public void Delete{{:TableName}}()
         {{:"{"}}
             sqlManager.ExcecuteNonQuery("Delete{{:TableName}}", CommandType.StoredProcedure, new List<SqlParameter>() {{:"{"}} 
-                SQL.SQLParameter("{{:IdentityColumn}}", {{:IdentityEnumType}}, {{:IdentityColumn}})
+                {{for IdentityColumns}}SQL.SQLParameter("{{:IdentityColumn}}", {{:IdentityEnumType}}, {{:IdentityColumn}}){{:LineEnding}}
+                {{/for}}
             {{:"}"}});
         {{:"}"}}
 

@@ -59,9 +59,7 @@
                 var objTeml = {
                     TableName: "",
                     Columns: [],
-                    IdentityColumn: "",
-                    IdentityType: "",
-                    IdentityEnumType: "",
+                    IdentityColumns: [],
                     namespace: "",
                     baseClass: "",
                     exportBase: ""
@@ -81,31 +79,67 @@
                             bootbox.alert(err.message, function () { });
                         }
                         else {
-                            $(recordset).each(function (index, column) {
-                                if (column.TYPE_NAME.toLowerCase().indexOf("identity") > 0)
-                                {
-                                    data.IdentityColumn = column.COLUMN_NAME;
-                                    data.IdentityType = self.GetDataType(column.TYPE_NAME);
-                                    data.IdentityEnumType = self.GetEnumDataType(column.TYPE_NAME);
-                                }
-
-                                var datType = self.GetDataType(column.TYPE_NAME);
-                                data.Columns.push({
-                                    ColumnName: column.COLUMN_NAME,
-                                    DataType: datType,
-                                    IsIntColumn: (datType == "int") ? true : false,
-                                    IsDateTimeColumn: (datType == "DateTime") ? true : false,
-                                    IsBoolColumn: (datType == "bool") ? true : false,
-                                    EnumDataType: self.GetEnumDataType(column.TYPE_NAME)
+                            //Get Identity columns
+                            self.GetIdentityColumns(recordset, data.TableName, function (identityColumns) {
+                                data.IdentityColumns = identityColumns;
+                                
+                                //Process normal columns
+                                $(recordset).each(function (index, column) {
+                                    var datType = self.GetDataType(column.TYPE_NAME);
+                                    data.Columns.push({
+                                        ColumnName: column.COLUMN_NAME,
+                                        DataType: datType,
+                                        IsIntColumn: (datType.toLowerCase() == "int") ? true : false,
+                                        IsDateTimeColumn: (datType.toLowerCase() == "datetime") ? true : false,
+                                        IsBoolColumn: (datType.toLowerCase() == "bool") ? true : false,
+                                        EnumDataType: self.GetEnumDataType(column.TYPE_NAME)
+                                    });
                                 });
-                            });
 
-                            callback(data);
+                                callback(data);
+                            });
                         }
                     });
 
                 });
 
+            }
+            self.GetIdentityColumns = function (tableColumns, tableName, callback) {
+                var IdentityColumns = [];
+
+                var query = "\
+                    SELECT COLUMN_NAME \
+                    FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE \
+                    WHERE OBJECTPROPERTY(OBJECT_ID(constraint_name), 'IsPrimaryKey') = 1 \
+                    AND table_name = '" + tableName + "'";
+
+                App.ConnectSql(function (connection) {
+                    var request = new App.sql.Request(connection);
+
+                    request.query(query, function (err, recordset) {
+                        if (err != null && err.code != "") {
+                            bootbox.alert(err.message, function () { });
+                        }
+                        else {
+                            $(recordset).each(function (index, column) {
+                                //Get original column details
+                                var orColumn = $.grep(tableColumns, function (item) {
+                                    return item.COLUMN_NAME.toLowerCase() == column.COLUMN_NAME.toLowerCase();
+                                });
+
+                                //Add Identity column
+                                IdentityColumns.push({
+                                    IdentityColumn: orColumn[0].COLUMN_NAME,
+                                    IdentityType: self.GetDataType(orColumn[0].TYPE_NAME),
+                                    IdentityEnumType: self.GetEnumDataType(orColumn[0].TYPE_NAME),
+                                    LineEnding: ((index + 1) < recordset.length) ? "," : ""
+                                });
+                            });
+
+                            callback(IdentityColumns);
+                        }
+                    });
+                });
             }
             self.GetBaseData = function(callback)
             {

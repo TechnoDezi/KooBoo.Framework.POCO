@@ -5,9 +5,10 @@
 -- =============================================
 CREATE PROCEDURE [dbo].[InsertUpdate{{:TableName}}]
 (
-@{{:IdentityColumn}} {{:IdentitySQLDatType}},
-{{for Columns}}@{{:ColumnName}} {{:SQLDatType}},
-{{/for}}@{{:IdentityColumn}}Out {{:IdentitySQLDatType}} Output
+    {{for IdentityColumns}}@{{:IdentityColumn}} {{:IdentitySQLDatType}},
+    {{/for}}{{for Columns}}@{{:ColumnName}} {{:SQLDatType}},
+    {{/for}}{{for IdentityColumns}}@{{:IdentityColumn}}Out {{:IdentitySQLDatType}} Output{{:LineEnding}}
+    {{/for}}
 )
 AS
 BEGIN
@@ -39,8 +40,10 @@ SET
     {{for Columns}}[{{:ColumnName}}] = @{{:ColumnName}}{{:LineEnding}}
     {{/for}}
 WHERE
-    {{:IdentityColumn}} = @{{:IdentityColumn}}
+    {{for IdentityColumns}}{{:IdentityColumn}} = @{{:IdentityColumn}}{{:AndLineEnding}}
+    {{/for}}
 
-SET @{{:IdentityColumn}}Out = @{{:IdentityColumn}}
+{{for IdentityColumns}}SET @{{:IdentityColumn}}Out = @{{:IdentityColumn}}
+{{/for}}
 END
 END

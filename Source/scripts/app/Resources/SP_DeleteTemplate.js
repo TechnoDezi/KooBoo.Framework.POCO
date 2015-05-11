@@ -5,13 +5,16 @@
 -- =============================================
 CREATE PROCEDURE [dbo].[Delete{{:TableName}}]
 (
-	@{{:IdentityColumn}} {{:IdentitySQLDatType}}
+    {{for IdentityColumns}}@{{:IdentityColumn}} {{:IdentitySQLDatType}}{{:LineEnding}}
+    {{/for}}
 )
 AS
 BEGIN
 	SET NOCOUNT ON;
 
     DELETE FROM {{:TableName}}
-    WHERE {{:IdentityColumn}} = @{{:IdentityColumn}}
+    WHERE
+        {{for IdentityColumns}}{{:IdentityColumn}} = @{{:IdentityColumn}}{{:AndLineEnding}}
+        {{/for}}
 
 END
