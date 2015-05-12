@@ -7,6 +7,7 @@ App.Constants = (function() {
         DBKey: "g7&K3(9D%@47$d34K2(sD4@#Js9G3K%s",
         Enums: {
             Templates: {
+                CCLASS_TEMPL_ERROR: "CCLASS_TEMPL_ERROR",
                 CCLASS_TEMPL: "CCLASS_TEMPL",
                 CBASE_CLASS_TEMPL: "CBASE_CLASS_TEMPL",
                 SP_SELECTDETAILS_TEMPL: "SP_SELECTDETAILS_TEMPL",

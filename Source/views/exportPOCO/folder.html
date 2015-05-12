@@ -9,9 +9,12 @@
             self.tmplPreview = ko.observable();
             self.namespace = ko.observable("SomeNamespace.ModuleName");
             self.baseClass = ko.observable("BusinessBase");
+            self.errorClass = ko.observable("Error");
             self.classTemplate = ko.observable();
             self.baseClassTemplate = ko.observable();
+            self.errorClassTemplate = ko.observable();
             self.exportBase = ko.observable(true);
+            self.exportError = ko.observable(true);
 
             //Functions
             self.init = function () {
@@ -47,6 +50,18 @@
                         }).error(function (msg) { console.log(msg); });
                     }
                 });
+
+                //Load the error class resources
+                App.Templates.FindByCode(App.Constants.Enums.Templates.CCLASS_TEMPL_ERROR).then(function (template) {
+                    if (!$.isEmptyObject(template)) {
+                        self.errorClassTemplate(template.templateContent);
+                    }
+                    else {
+                        $.get("scripts/app/Resources/ErrorClassTemplate.js", function (response) {
+                            self.errorClassTemplate(response);
+                        }).error(function (msg) { console.log(msg); });
+                    }
+                });
             }
             self.renderFirstTablePreview = function()
             {
@@ -62,13 +77,15 @@
                     IdentityColumns: [],
                     namespace: "",
                     baseClass: "",
-                    exportBase: ""
+                    exportBase: "",
+                    exportError: ""
                 }
                 var data = objTeml;
                 data.TableName = tableName;
                 data.namespace = self.namespace();
                 data.baseClass = self.baseClass();
                 data.exportBase = self.exportBase();
+                data.exportError = self.exportError();
 
                 //Get columns for first table
                 App.ConnectSql(function (connection) {
@@ -222,6 +239,13 @@
                         self.writeTextFile(classText, self.baseClass() + ".cs");
                     });
                 }
+                //Generate error class
+                if (self.exportError()) {
+                    self.GetBaseData(function (data) {
+                        var classText = $("#errorClassTemplate").render(data);
+                        self.writeTextFile(classText, self.errorClass() + ".cs");
+                    });
+                }
                 bootbox.alert("Classes exported to " + self.folder() + "\\", function () { });
             }
             self.cancelClick = function (data, event) {
@@ -258,6 +282,11 @@
                 <input type="checkbox" data-bind="checked: exportBase"> Export base class
             </label>
         </div>
+        <div class="checkbox">
+            <label>
+                <input type="checkbox" data-bind="checked: exportError"> Export base error class
+            </label>
+        </div>
         <div class="form-group">
             <label>Select a folder to export to</label>
             <input type="file" nwdirectory data-bind="value:folder" required />
@@ -270,4 +299,6 @@
     <textarea rows="25" class="form-control" data-bind="value:tmplPreview"></textarea>
     <script id="classTemplate" type="text/x-jquery-tmpl" data-bind="text: classTemplate"></script>
     <script id="baseClassTemplate" type="text/x-jquery-tmpl" data-bind="text: baseClassTemplate"></script>
+    <script id="baseClassTemplate" type="text/x-jquery-tmpl" data-bind="text: baseClassTemplate"></script>
+    <script id="errorClassTemplate" type="text/x-jquery-tmpl" data-bind="text: errorClassTemplate"></script>
 </div>

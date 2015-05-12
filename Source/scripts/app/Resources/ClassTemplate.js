@@ -24,15 +24,26 @@ namespace {{:namespace}}
         {{:"/// <returns></returns>"}}
         public void Select{{:TableName}}Details()
         {{:"{"}}
-            DataTable dt = sqlManager.ExcecuteDataTable("Select{{:TableName}}Details", CommandType.StoredProcedure, new List<SqlParameter>() {{:"{"}} 
-                {{for IdentityColumns}}SQL.SQLParameter("{{:IdentityColumn}}", {{:IdentityEnumType}}, {{:IdentityColumn}}){{:LineEnding}}
-                {{/for}}
-            {{:"}"}});
-
-            if (dt.Rows.Count > 0)
+            try
             {{:"{"}}
-                {{for Columns}}{{:ColumnName}} = dt.GetDataCellValue(0, "{{:ColumnName}}"){{if IsIntColumn}}.ToInt32(){{else IsDateTimeColumn}}.ToDateTime(){{else IsBoolColumn}}.ToBoolean(){{/if}};
-                {{/for}}
+                DataTable dt = sqlManager.ExcecuteDataTable("Select{{:TableName}}Details", CommandType.StoredProcedure, new List<SqlParameter>() {{:"{"}} 
+                    {{for IdentityColumns}}SQL.SQLParameter("{{:IdentityColumn}}", {{:IdentityEnumType}}, {{:IdentityColumn}}){{:LineEnding}}
+                    {{/for}}
+                {{:"}"}});
+
+                if (dt.Rows.Count > 0)
+                {{:"{"}}
+                    {{for Columns}}{{:ColumnName}} = dt.GetDataCellValue(0, "{{:ColumnName}}"){{if IsIntColumn}}.ToInt32(){{else IsDateTimeColumn}}.ToDateTime(){{else IsBoolColumn}}.ToBoolean(){{/if}};
+                    {{/for}}
+                {{:"}"}}
+            {{:"}"}}
+            catch (Exception ex)
+            {{:"{"}}
+                LogError(ex.Message, ex, "{{:namespace}}.{{:TableName}}.Select{{:TableName}}Details");
+            {{:"}"}}
+            finally
+            {{:"{"}}
+                sqlManager.CloseConnectionNoTransaction();
             {{:"}"}}
         {{:"}"}}
 
@@ -44,18 +55,29 @@ namespace {{:namespace}}
         {{:"{"}}
             List{{:"<"}}{{:TableName}}{{:">"}} list = new List{{:"<"}}{{:TableName}}{{:">"}}();
 
-            DataTable dt = sqlManager.ExcecuteDataTable("Select{{:TableName}}ListSearch", CommandType.StoredProcedure, new List<SqlParameter>() {{:"{"}} 
-                SQL.SQLParameter("SearchValue", SqlDbType.VarChar, searchValue)
-            {{:"}"}});
-
-            if (dt.Rows.Count > 0)
+            try
             {{:"{"}}
-                list = (from d in dt.AsEnumerable()
-                        select new {{:TableName}}
-                        {{:"{"}}
-                            {{for Columns}}{{:ColumnName}} = d.Field{{:"<"}}{{:DataType}}{{:">"}}("{{:ColumnName}}"),
-                            {{/for}}
-                        {{:"}"}}).ToList{{:"<"}}{{:TableName}}{{:">"}}();
+                DataTable dt = sqlManager.ExcecuteDataTable("Select{{:TableName}}ListSearch", CommandType.StoredProcedure, new List<SqlParameter>() {{:"{"}} 
+                    SQL.SQLParameter("SearchValue", SqlDbType.VarChar, searchValue)
+                {{:"}"}});
+
+                if (dt.Rows.Count > 0)
+                {{:"{"}}
+                    list = (from d in dt.AsEnumerable()
+                            select new {{:TableName}}
+                            {{:"{"}}
+                                {{for Columns}}{{:ColumnName}} = d.Field{{:"<"}}{{:DataType}}{{:">"}}("{{:ColumnName}}"),
+                                {{/for}}
+                            {{:"}"}}).ToList{{:"<"}}{{:TableName}}{{:">"}}();
+                {{:"}"}}
+            {{:"}"}}
+            catch (Exception ex)
+            {{:"{"}}
+                LogError(ex.Message, ex, "{{:namespace}}.{{:TableName}}.Select{{:TableName}}ListSearch");
+            {{:"}"}}
+            finally
+            {{:"{"}}
+                sqlManager.CloseConnectionNoTransaction();
             {{:"}"}}
 
             return list;
@@ -70,22 +92,33 @@ namespace {{:namespace}}
         {{:"/// </summary>"}}
         public void InsertUpdate{{:TableName}}()
         {{:"{"}}
-            sqlManager.ExcecuteNonQuery("InsertUpdate{{:TableName}}", CommandType.StoredProcedure, new List<SqlParameter>()
-            {{:"{"}} 
-                {{for Columns}}SQL.SQLParameter("{{:ColumnName}}", {{:EnumDataType}}, {{:ColumnName}}),
-                {{/for}}{{for IdentityColumns}}SQL.SQLParameter("{{:IdentityColumn}}Out", {{:IdentityEnumType}}, 4, ParameterDirection.Output){{:LineEnding}}
-                {{/for}}
-            {{:"}"}});
-
-            //Set output values
-            if (sqlManager.CurrentCommand != null)
+            try
             {{:"{"}}
-                {{for IdentityColumns}}
-                    if (sqlManager.CurrentCommand.Parameters["{{:IdentityColumn}}Out"].Value != DBNull.Value)
-                    {{:"{"}}
-                        {{:IdentityColumn}} = ({{:IdentityType}})sqlManager.CurrentCommand.Parameters["{{:IdentityColumn}}Out"].Value;
-                    {{:"}"}}
-                {{/for}}
+                sqlManager.ExcecuteNonQuery("InsertUpdate{{:TableName}}", CommandType.StoredProcedure, new List<SqlParameter>()
+                {{:"{"}} 
+                    {{for Columns}}SQL.SQLParameter("{{:ColumnName}}", {{:EnumDataType}}, {{:ColumnName}}),
+                    {{/for}}{{for IdentityColumns}}SQL.SQLParameter("{{:IdentityColumn}}Out", {{:IdentityEnumType}}, 4, ParameterDirection.Output){{:LineEnding}}
+                    {{/for}}
+                {{:"}"}});
+
+                //Set output values
+                if (sqlManager.CurrentCommand != null)
+                {{:"{"}}
+                    {{for IdentityColumns}}
+                        if (sqlManager.CurrentCommand.Parameters["{{:IdentityColumn}}Out"].Value != DBNull.Value)
+                        {{:"{"}}
+                            {{:IdentityColumn}} = ({{:IdentityType}})sqlManager.CurrentCommand.Parameters["{{:IdentityColumn}}Out"].Value;
+                        {{:"}"}}
+                    {{/for}}
+                {{:"}"}}
+            {{:"}"}}
+            catch (Exception ex)
+            {{:"{"}}
+                LogError(ex.Message, ex, "{{:namespace}}.{{:TableName}}.InsertUpdate{{:TableName}}");
+            {{:"}"}}
+            finally
+            {{:"{"}}
+                sqlManager.CloseConnectionNoTransaction();
             {{:"}"}}
         {{:"}"}}
 
@@ -98,10 +131,21 @@ namespace {{:namespace}}
         {{:"/// </summary>"}}
         public void Delete{{:TableName}}()
         {{:"{"}}
-            sqlManager.ExcecuteNonQuery("Delete{{:TableName}}", CommandType.StoredProcedure, new List<SqlParameter>() {{:"{"}} 
-                {{for IdentityColumns}}SQL.SQLParameter("{{:IdentityColumn}}", {{:IdentityEnumType}}, {{:IdentityColumn}}){{:LineEnding}}
-                {{/for}}
-            {{:"}"}});
+            try
+            {{:"{"}}
+                sqlManager.ExcecuteNonQuery("Delete{{:TableName}}", CommandType.StoredProcedure, new List<SqlParameter>() {{:"{"}} 
+                    {{for IdentityColumns}}SQL.SQLParameter("{{:IdentityColumn}}", {{:IdentityEnumType}}, {{:IdentityColumn}}){{:LineEnding}}
+                    {{/for}}
+                {{:"}"}});
+            {{:"}"}}
+            catch (Exception ex)
+            {{:"{"}}
+                LogError(ex.Message, ex, "{{:namespace}}.{{:TableName}}.Delete{{:TableName}}");
+            {{:"}"}}
+            finally
+            {{:"{"}}
+                sqlManager.CloseConnectionNoTransaction();
+            {{:"}"}}
         {{:"}"}}
 
         #endregion

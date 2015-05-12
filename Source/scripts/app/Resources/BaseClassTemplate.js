@@ -9,14 +9,29 @@ namespace {{:namespace}}
 {{:"{"}}
     public abstract class {{:baseClass}}
     {{:"{"}}
-        internal string _connectionString;
-        internal SqlDataManager sqlManager;
+        public SqlDataManager sqlManager;
+        public Error error {{:"{"}} get; set; {{:"}"}}
 
         public {{:baseClass}}()
         {{:"{"}}
-            _connectionString = ((KooBoo.Framework.Models.AppTenant)System.Web.HttpContext.Current.Session["CurrentTenant"]).ConnectionString;
+            sqlManager = new SqlDataManager("DefaultConnection", null);
+            error = new Error();
+        {{:"}"}}
 
-            sqlManager = new SqlDataManager(null, _connectionString);
+        public async Task LogError(string message, Exception exception, string logger)
+        {{:"{"}}
+            try
+            {{:"{"}}
+                error.Message = message;
+                error.IsError = true;
+
+                //Log entity errors here
+
+            {{:"}"}}
+            catch
+            {{:"{"}}
+                throw;
+            {{:"}"}}
         {{:"}"}}
     {{:"}"}}
 {{:"}"}}
