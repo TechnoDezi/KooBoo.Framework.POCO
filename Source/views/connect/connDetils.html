@@ -12,6 +12,7 @@
 
             //Functions
             self.init = function () {
+                App.ShowLoading();
 
                 //Load last connection details
                 if (App.Variables.ConnectionConfig.user != "") {
@@ -20,9 +21,13 @@
                     self.server(App.Variables.ConnectionConfig.server);
                     self.database(App.Variables.ConnectionConfig.database);
                     self.encrypt(App.Variables.ConnectionConfig.options.encrypt);
+
+                    App.HideLoading();
                 }
                 else
                 {
+                    App.ShowLoading();
+
                     //Load default connection from DB
                     App.Connections.FindByCode(App.Constants.Enums.Connections.DEFAULT).then(function (connection) {
                         if (!$.isEmptyObject(connection)) {
@@ -33,12 +38,16 @@
                             self.database(connection.database);
                             self.encrypt(connection.encrypt);
                         }
+
+                        App.HideLoading();
                     });
                 }
             }
 
             //Events
             self.FormSubmit = function () {
+                App.ShowLoading();
+
                 //Set Config
                 App.Variables.ConnectionConfig.user = self.user();
                 App.Variables.ConnectionConfig.password = self.password();
@@ -47,6 +56,8 @@
                 App.Variables.ConnectionConfig.options.encrypt = self.encrypt();
 
                 App.ConnectSql(function (connection) {
+                    App.HideLoading();
+
                     //Clear selected tables
                     App.Variables.SelectedTables = [];
 

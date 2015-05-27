@@ -15,10 +15,14 @@
 
             //Functions
             self.init = function () {
+                App.ShowLoading();
+
                 self.LoadClassTemplate();
 
                 self.tablesCount(App.Variables.SelectedTables.length);
                 self.renderFirstTablePreview();
+
+                App.HideLoading();
             }
             self.LoadClassTemplate = function()
             {
@@ -76,6 +80,8 @@
             }
             self.GetTableData = function(tableName, callback)
             {
+                App.ShowLoading();
+
                 var objTeml = {
                     author: "",
                     TableName: "",
@@ -120,6 +126,8 @@
                                 callback(data);
                             });
                         }
+
+                        App.HideLoading();
                     });
 
                 });
@@ -127,6 +135,8 @@
             }
             self.GetIdentityColumns = function (tableColumns, tableName, callback) {
                 var IdentityColumns = [];
+
+                App.ShowLoading();
 
                 var query = "\
                     SELECT COLUMN_NAME \
@@ -159,6 +169,8 @@
 
                             callback(IdentityColumns);
                         }
+
+                        App.HideLoading();
                     });
                 });
             }
@@ -186,13 +198,19 @@
             }
             self.writeTextFile = function(text, fileName)
             {
-                App.fileSystem.writeFile(self.folder() + "\\" + fileName, text, function (err) {
-                    
+                var fullPath = self.folder() + "\\StoredProcedures\\" + fileName, text;
+
+                App.mkdirp(App.getDirName(fullPath), function (err) {
+                    App.fileSystem.writeFile(fullPath, text, function (err) {
+
+                    });
                 });
             }
 
             //Events
             self.FormSubmit = function () {
+                App.ShowLoading();
+
                 //Generate select details
                 $(App.Variables.SelectedTables).each(function (index, table) {
                     self.GetTableData(table.tableName, function (data) {
@@ -221,6 +239,7 @@
                         self.writeTextFile(classText, "Delete" + table.tableName + ".sql");
                     });
                 });
+                App.HideLoading();
                 bootbox.alert("Procs exported to " + self.folder() + "\\", function () { });
             }
             self.cancelClick = function (data, event) {

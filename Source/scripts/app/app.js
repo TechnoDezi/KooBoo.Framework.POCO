@@ -9,6 +9,8 @@ App.cluster = require('cluster');
 App.lodash = require('lodash');
 App.sql = require('mssql');
 App.Datastore = require('nedb');
+App.getDirName = require("path").dirname;
+App.mkdirp = require('mkdirp');
 
 //App Methods
 App.Init = function()
@@ -97,4 +99,11 @@ App.DecryptDB = function (strData) {
     else {
         return strData;
     }
+}
+App.ShowLoading = function()
+{
+    $(".loader-walk").show();
+}
+App.HideLoading = function () {
+    $(".loader-walk").hide();
 }

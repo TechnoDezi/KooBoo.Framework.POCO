@@ -10,6 +10,8 @@
 
             //Functions
             self.init = function () {
+                App.ShowLoading();
+
                 if(App.Variables.SettingsSelectedTempl != "")
                 {
                     var filename = "";
@@ -35,6 +37,16 @@
                                     self.templateName("C# Base Class Template");
 
                                     filename = "BaseClassTemplate.js";
+                                }; break;
+                                case App.Constants.Enums.Templates.CCLASS_TEMPL_ERROR: {
+                                    self.templateName("C# Error Template");
+
+                                    filename = "ErrorClassTemplate.js";
+                                }; break;
+                                case App.Constants.Enums.Templates.CINTERFACE_CLASS_TEMPL: {
+                                    self.templateName("C# Interface Template");
+
+                                    filename = "ClassInterfaceTemplate.js";
                                 }; break;
                                 case App.Constants.Enums.Templates.SP_SELECTDETAILS_TEMPL: {
                                     self.templateName("SP Select Details");
@@ -63,16 +75,21 @@
                                 self.templateContent(response);
                             }).error(function (msg) { console.log(msg); });
                         }
+
+                        App.HideLoading();
                     });
                 }
                 else
                 {
+                    App.HideLoading();
                     App.PageManager.LoadPage("settings_tmpl_list");
                 }
             }
 
             //Events
             self.FormSubmit = function () {
+                App.ShowLoading();
+
                 App.Templates.InsertUpdate(
                     self.templateName(),
                     App.Variables.SettingsSelectedTempl,
@@ -81,6 +98,7 @@
                     if (id != "" && id != null) {
                         App.PageManager.LoadPage("settings_tmpl_edit", false);
                     }
+                    App.HideLoading();
                 });
             }
             self.cancelClick = function (data, event) {

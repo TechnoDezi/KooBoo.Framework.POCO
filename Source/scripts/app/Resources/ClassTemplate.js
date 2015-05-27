@@ -8,7 +8,7 @@ using KooBoo.Framework.Data;
 
 namespace {{:namespace}}
 {{:"{"}}
-    public class {{:TableName}} {{if exportBase}}: {{:baseClass}}{{/if}}
+    public class {{:TableName}} {{if exportBase}}: {{:baseClass}}{{/if}}{{if exportInterface}} ,I{{:TableName}}{{/if}}
     {{:"{"}}
         #region Properties
 
@@ -51,9 +51,9 @@ namespace {{:namespace}}
         {{:"/// Selects a list of all "}}{{:TableName}} {{:"for the search criteria"}}
         {{:"/// </summary>"}}
         {{:"/// <returns></returns>"}}
-        public List{{:"<"}}{{:TableName}}{{:">"}} Select{{:TableName}}ListSearch(string searchValue)
+        public List{{:"<"}}{{if exportInterface}}I{{/if}}{{:TableName}}{{:">"}} Select{{:TableName}}ListSearch(string searchValue)
         {{:"{"}}
-            List{{:"<"}}{{:TableName}}{{:">"}} list = new List{{:"<"}}{{:TableName}}{{:">"}}();
+            List{{:"<"}}{{if exportInterface}}I{{/if}}{{:TableName}}{{:">"}} list = new List{{:"<"}}{{:TableName}}{{:">"}}();
 
             try
             {{:"{"}}
@@ -68,7 +68,7 @@ namespace {{:namespace}}
                             {{:"{"}}
                                 {{for Columns}}{{:ColumnName}} = d.Field{{:"<"}}{{:DataType}}{{:">"}}("{{:ColumnName}}"),
                                 {{/for}}
-                            {{:"}"}}).ToList{{:"<"}}{{:TableName}}{{:">"}}();
+                            {{:"}"}}).ToList{{:"<"}}{{if exportInterface}}I{{/if}}{{:TableName}}{{:">"}}();
                 {{:"}"}}
             {{:"}"}}
             catch (Exception ex)

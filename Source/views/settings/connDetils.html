@@ -12,6 +12,8 @@
 
             //Functions
             self.init = function () {
+                App.ShowLoading();
+
                 //Load default connection from DB
                 App.Connections.FindByCode(App.Constants.Enums.Connections.DEFAULT).then(function (connection) {
                     if (!$.isEmptyObject(connection)) {
@@ -21,11 +23,15 @@
                         self.database(connection.database);
                         self.encrypt(connection.encrypt);
                     }
+
+                    App.HideLoading();
                 });
             }
 
             //Events
             self.FormSubmit = function () {
+                App.ShowLoading();
+
                 //Set Config
                 App.Variables.ConnectionConfig.user = self.user();
                 App.Variables.ConnectionConfig.password = self.password();
@@ -46,6 +52,8 @@
                         if (id != "" && id != null) {
                             App.PageManager.LoadPage("settings", false);
                         }
+
+                        App.HideLoading();
                     });
                 });
 

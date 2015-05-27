@@ -13,15 +13,21 @@
             self.classTemplate = ko.observable();
             self.baseClassTemplate = ko.observable();
             self.errorClassTemplate = ko.observable();
+            self.interfaceClassTemplate = ko.observable();
             self.exportBase = ko.observable(true);
             self.exportError = ko.observable(true);
+            self.exportInterface = ko.observable(true);
 
             //Functions
             self.init = function () {
+                App.ShowLoading();
+
                 self.LoadClassTemplate();
 
                 self.tablesCount(App.Variables.SelectedTables.length);
                 self.renderFirstTablePreview();
+
+                App.HideLoading();
             }
             self.LoadClassTemplate = function()
             {
@@ -62,6 +68,18 @@
                         }).error(function (msg) { console.log(msg); });
                     }
                 });
+
+                //Load the interface class resources
+                App.Templates.FindByCode(App.Constants.Enums.Templates.CINTERFACE_CLASS_TEMPL).then(function (template) {
+                    if (!$.isEmptyObject(template)) {
+                        self.interfaceClassTemplate(template.templateContent);
+                    }
+                    else {
+                        $.get("scripts/app/Resources/ClassInterfaceTemplate.js", function (response) {
+                            self.interfaceClassTemplate(response);
+                        }).error(function (msg) { console.log(msg); });
+                    }
+                });
             }
             self.renderFirstTablePreview = function()
             {
@@ -71,6 +89,8 @@
             }
             self.GetTableData = function(tableName, callback)
             {
+                App.ShowLoading();
+
                 var objTeml = {
                     TableName: "",
                     Columns: [],
@@ -78,7 +98,8 @@
                     namespace: "",
                     baseClass: "",
                     exportBase: "",
-                    exportError: ""
+                    exportError: "",
+                    exportInterface: ""
                 }
                 var data = objTeml;
                 data.TableName = tableName;
@@ -86,6 +107,7 @@
                 data.baseClass = self.baseClass();
                 data.exportBase = self.exportBase();
                 data.exportError = self.exportError();
+                data.exportInterface = self.exportInterface();
 
                 //Get columns for first table
                 App.ConnectSql(function (connection) {
@@ -116,6 +138,8 @@
                                 callback(data);
                             });
                         }
+
+                        App.HideLoading();
                     });
 
                 });
@@ -123,6 +147,8 @@
             }
             self.GetIdentityColumns = function (tableColumns, tableName, callback) {
                 var IdentityColumns = [];
+
+                App.ShowLoading();
 
                 var query = "\
                     SELECT COLUMN_NAME \
@@ -155,6 +181,8 @@
 
                             callback(IdentityColumns);
                         }
+
+                        App.HideLoading();
                     });
                 });
             }
@@ -218,34 +246,51 @@
             }
             self.writeTextFile = function(text, fileName)
             {
-                App.fileSystem.writeFile(self.folder() + "\\" + fileName, text, function (err) {
-                    
+                var fullPath = self.folder() + "\\" + fileName;
+
+                App.mkdirp(App.getDirName(fullPath), function (err) {
+                    App.fileSystem.writeFile(fullPath, text, function (err) {
+
+                    });
                 });
             }
 
             //Events
             self.FormSubmit = function () {
+                App.ShowLoading();
+
                 //Generate normal tables
                 $(App.Variables.SelectedTables).each(function (index, table) {
                     self.GetTableData(table.tableName, function (data) {
                         var classText = $("#classTemplate").render(data);
-                        self.writeTextFile(classText, table.tableName + ".cs");
+                        self.writeTextFile(classText, "Classes\\" + table.tableName + ".cs");
                     });
                 });
                 //Generate base class
                 if (self.exportBase()) {
                     self.GetBaseData(function (data) {
                         var classText = $("#baseClassTemplate").render(data);
-                        self.writeTextFile(classText, self.baseClass() + ".cs");
+                        self.writeTextFile(classText, "BaseClasses\\" + self.baseClass() + ".cs");
                     });
                 }
                 //Generate error class
                 if (self.exportError()) {
                     self.GetBaseData(function (data) {
                         var classText = $("#errorClassTemplate").render(data);
-                        self.writeTextFile(classText, self.errorClass() + ".cs");
+                        self.writeTextFile(classText, "BaseClasses\\" + self.errorClass() + ".cs");
                     });
                 }
+                //Generate interface classes
+                if (self.exportInterface()) {
+                    $(App.Variables.SelectedTables).each(function (index, table) {
+                        self.GetTableData(table.tableName, function (data) {
+                            var classText = $("#interfaceClassTemplate").render(data);
+                            self.writeTextFile(classText, "Interfaces\\I" + table.tableName + ".cs");
+                        });
+                    });
+                }
+
+                App.HideLoading();
                 bootbox.alert("Classes exported to " + self.folder() + "\\", function () { });
             }
             self.cancelClick = function (data, event) {
@@ -287,6 +332,11 @@
                 <input type="checkbox" data-bind="checked: exportError"> Export base error class
             </label>
         </div>
+        <div class="checkbox">
+            <label>
+                <input type="checkbox" data-bind="checked: exportInterface"> Export interface classes
+            </label>
+        </div>
         <div class="form-group">
             <label>Select a folder to export to</label>
             <input type="file" nwdirectory data-bind="value:folder" required />
@@ -301,4 +351,6 @@
     <script id="baseClassTemplate" type="text/x-jquery-tmpl" data-bind="text: baseClassTemplate"></script>
     <script id="baseClassTemplate" type="text/x-jquery-tmpl" data-bind="text: baseClassTemplate"></script>
     <script id="errorClassTemplate" type="text/x-jquery-tmpl" data-bind="text: errorClassTemplate"></script>
+    <script id="interfaceClassTemplate" type="text/x-jquery-tmpl" data-bind="text: interfaceClassTemplate">
+    </script>
 </div>
