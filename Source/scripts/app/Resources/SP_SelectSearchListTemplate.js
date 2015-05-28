@@ -3,7 +3,7 @@
 -- Create date: 
 -- Description:	Selects a list of all {{:TableName}} for the search criteria
 -- =============================================
-CREATE PROCEDURE [dbo].[Select{{:TableName}}ListSearch]
+CREATE PROCEDURE [dbo].[Get{{:TableName}}ListSearch]
 (
 	@SearchValue Varchar(500)
 )

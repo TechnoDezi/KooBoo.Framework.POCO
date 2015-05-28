@@ -26,7 +26,7 @@
                             bootbox.alert(err.message, function () { });
                         }
                         else {
-                            $(recordset).each(function (index, table) {
+                            $(App.lodash.sortBy(recordset, 'TABLE_NAME')).each(function (index, table) {
                                 self.tablesList.push(new self.TableObj(
                                     table.TABLE_NAME,
                                     table.TABLE_TYPE,

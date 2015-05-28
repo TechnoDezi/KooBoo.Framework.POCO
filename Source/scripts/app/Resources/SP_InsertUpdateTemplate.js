@@ -3,7 +3,7 @@
 -- Create date: 
 -- Description:	Inserts or updates a {{:TableName}}
 -- =============================================
-CREATE PROCEDURE [dbo].[InsertUpdate{{:TableName}}]
+CREATE PROCEDURE [dbo].[AddUpdate{{:TableName}}]
 (
     {{for IdentityColumns}}@{{:IdentityColumn}} {{:IdentitySQLDatType}},
     {{/for}}{{for Columns}}@{{:ColumnName}} {{:SQLDatType}},

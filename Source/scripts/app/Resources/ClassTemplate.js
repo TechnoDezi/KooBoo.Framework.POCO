@@ -22,11 +22,11 @@ namespace {{:namespace}}
         {{:"/// Selects the details for the specified"}}{{:TableName}}
         {{:"/// </summary>"}}
         {{:"/// <returns></returns>"}}
-        public void Select{{:TableName}}Details()
+        public void GetDetails()
         {{:"{"}}
             try
             {{:"{"}}
-                DataTable dt = sqlManager.ExcecuteDataTable("Select{{:TableName}}Details", CommandType.StoredProcedure, new List<SqlParameter>() {{:"{"}} 
+                DataTable dt = sqlManager.ExcecuteDataTable("Get{{:TableName}}Details", CommandType.StoredProcedure, new List<SqlParameter>() {{:"{"}} 
                     {{for IdentityColumns}}SQL.SQLParameter("{{:IdentityColumn}}", {{:IdentityEnumType}}, {{:IdentityColumn}}){{:LineEnding}}
                     {{/for}}
                 {{:"}"}});
@@ -51,13 +51,13 @@ namespace {{:namespace}}
         {{:"/// Selects a list of all "}}{{:TableName}} {{:"for the search criteria"}}
         {{:"/// </summary>"}}
         {{:"/// <returns></returns>"}}
-        public List{{:"<"}}{{if exportInterface}}I{{/if}}{{:TableName}}{{:">"}} Select{{:TableName}}ListSearch(string searchValue)
+        public List{{:"<"}}{{if exportInterface}}I{{/if}}{{:TableName}}{{:">"}} GetListSearch(string searchValue)
         {{:"{"}}
             List{{:"<"}}{{if exportInterface}}I{{/if}}{{:TableName}}{{:">"}} list = new List{{:"<"}}{{:TableName}}{{:">"}}();
 
             try
             {{:"{"}}
-                DataTable dt = sqlManager.ExcecuteDataTable("Select{{:TableName}}ListSearch", CommandType.StoredProcedure, new List<SqlParameter>() {{:"{"}} 
+                DataTable dt = sqlManager.ExcecuteDataTable("Get{{:TableName}}ListSearch", CommandType.StoredProcedure, new List<SqlParameter>() {{:"{"}} 
                     SQL.SQLParameter("SearchValue", SqlDbType.VarChar, searchValue)
                 {{:"}"}});
 
@@ -90,11 +90,11 @@ namespace {{:namespace}}
         {{:"/// <summary>"}}
         {{:"/// Inserts or updates the specified "}}{{:TableName}}
         {{:"/// </summary>"}}
-        public void InsertUpdate{{:TableName}}()
+        public void AddUpdate()
         {{:"{"}}
             try
             {{:"{"}}
-                sqlManager.ExcecuteNonQuery("InsertUpdate{{:TableName}}", CommandType.StoredProcedure, new List<SqlParameter>()
+                sqlManager.ExcecuteNonQuery("AddUpdate{{:TableName}}", CommandType.StoredProcedure, new List<SqlParameter>()
                 {{:"{"}} 
                     {{for Columns}}SQL.SQLParameter("{{:ColumnName}}", {{:EnumDataType}}, {{:ColumnName}}),
                     {{/for}}{{for IdentityColumns}}SQL.SQLParameter("{{:IdentityColumn}}Out", {{:IdentityEnumType}}, 4, ParameterDirection.Output){{:LineEnding}}
@@ -129,7 +129,7 @@ namespace {{:namespace}}
         {{:"/// <summary>"}}
         {{:"/// Deletes the specified "}}{{:TableName}}
         {{:"/// </summary>"}}
-        public void Delete{{:TableName}}()
+        public void Delete()
         {{:"{"}}
             try
             {{:"{"}}

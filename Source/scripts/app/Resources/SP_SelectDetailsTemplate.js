@@ -3,7 +3,7 @@
 -- Create date: 
 -- Description:	Selects the details for the specified {{:TableName}}
 -- =============================================
-CREATE PROCEDURE [dbo].[Select{{:TableName}}Details]
+CREATE PROCEDURE [dbo].[Get{{:TableName}}Details]
 (
     {{for IdentityColumns}}@{{:IdentityColumn}} {{:IdentitySQLDatType}}{{:LineEnding}}
     {{/for}}

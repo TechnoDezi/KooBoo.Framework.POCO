@@ -14,9 +14,9 @@ namespace {{:namespace}}
         {{/for}}
         #endregion
 
-        void Select{{:TableName}}Details();
-        List{{:"<"}}I{{:TableName}}{{:">"}} Select{{:TableName}}ListSearch(string searchValue);
-        void InsertUpdate{{:TableName}}();
-        void Delete{{:TableName}}();
+        void GetDetails();
+        List{{:"<"}}I{{:TableName}}{{:">"}} GetListSearch(string searchValue);
+        void AddUpdate();
+        void Delete();
     }
 }
