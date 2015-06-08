@@ -4,7 +4,17 @@
             var self = this;
 
             //Properties
+            self.searchValue = ko.observable("");
             self.tablesList = ko.observableArray([]);
+            self.filteredItems = ko.computed(function () {
+                if (!self.searchValue() || self.searchValue() == "") {
+                    return self.tablesList();
+                } else {
+                    return ko.utils.arrayFilter(self.tablesList(), function (i) {
+                        return i.tableName.toLowerCase().indexOf(self.searchValue().toLowerCase()) > -1;
+                    });
+                }
+            });
 
             self.TableObj = function (tableName, type, schema, checked) {
                 this.tableName = tableName;
@@ -119,10 +129,20 @@
 <div id="TablesList">
     <div class="row">
         <div class="col-md-12">
-            <div>
-                <a href="#" data-bind="click: SelectAll">Select / De-select All</a>
+           <div class="col-sm-4">
+               <a href="#" data-bind="click: SelectAll">Select / De-select All</a>
+           </div> 
+            <div class="col-sm-8 text-right">
+                <form class="form-inline">
+                    <div class="form-group">
+                        <label class="sr-only" for="exampleInputAmount">Filter Tables</label>
+                        <div class="input-group">
+                            <div class="input-group-addon"><span class="glyphicon glyphicon-search"></span></div>
+                            <input type="text" class="form-control" id="exampleInputAmount" placeholder="Filter Tables" data-bind="value: searchValue, valueUpdate: 'keyup'">
+                        </div>
+                    </div>
+                </form>
             </div>
-            <br />
             <table class="table table-striped">
                 <thead>
                     <tr>
@@ -132,9 +152,9 @@
                         <th>Schema</th>
                     </tr>
                 </thead>
-                <tbody data-bind="foreach: tablesList">
+                <tbody data-bind="foreach: filteredItems">
                     <tr class="cursor-pointer" data-bind="click: $parent.TableClick">
-                        <td align="center"><input type="checkbox" data-bind="checked: isChecked" /></td>
+                        <td align="center" onclick="event.cancelBubble = true"><input type="checkbox" data-bind="checked: isChecked" /></td>
                         <td data-bind="text: tableName"></td>
                         <td data-bind="text: type"></td>
                         <td data-bind="text: schema"></td>
