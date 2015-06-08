@@ -29,8 +29,7 @@
 
                 App.HideLoading();
             }
-            self.LoadClassTemplate = function()
-            {
+            self.LoadClassTemplate = function () {
                 $.ajaxSetup({ cache: false });
 
                 //Load the class resources
@@ -81,14 +80,12 @@
                     }
                 });
             }
-            self.renderFirstTablePreview = function()
-            {
+            self.renderFirstTablePreview = function () {
                 self.GetTableData(App.Variables.SelectedTables[0].tableName, function (data) {
                     self.tmplPreview($("#classTemplate").render(data));
                 });
             }
-            self.GetTableData = function(tableName, callback)
-            {
+            self.GetTableData = function (tableName, callback) {
                 App.ShowLoading();
 
                 var objTeml = {
@@ -121,7 +118,7 @@
                             //Get Identity columns
                             self.GetIdentityColumns(recordset, data.TableName, function (identityColumns) {
                                 data.IdentityColumns = identityColumns;
-                                
+
                                 //Process normal columns
                                 $(recordset).each(function (index, column) {
                                     var datType = self.GetDataType(column.TYPE_NAME);
@@ -186,8 +183,7 @@
                     });
                 });
             }
-            self.GetBaseData = function(callback)
-            {
+            self.GetBaseData = function (callback) {
                 var objTeml = {
                     namespace: "",
                     baseClass: ""
@@ -198,12 +194,10 @@
 
                 callback(data);
             }
-            self.GetDataType = function(typeNam)
-            {
+            self.GetDataType = function (typeNam) {
                 var value = "";
 
-                switch(typeNam.toLowerCase())
-                {
+                switch (typeNam.toLowerCase()) {
                     case "int identity": value = "int"; break;
                     case "smallint": value = "int"; break;
                     case "int": value = "int"; break;
@@ -244,8 +238,7 @@
 
                 return value;
             }
-            self.writeTextFile = function(text, fileName)
-            {
+            self.writeTextFile = function (text, fileName) {
                 var fullPath = self.folder() + "\\" + fileName;
 
                 App.mkdirp(App.getDirName(fullPath), function (err) {
@@ -263,21 +256,21 @@
                 $(App.Variables.SelectedTables).each(function (index, table) {
                     self.GetTableData(table.tableName, function (data) {
                         var classText = $("#classTemplate").render(data);
-                        self.writeTextFile(classText, "Classes\\" + table.tableName + ".cs");
+                        self.writeTextFile(classText, "C#\\Classes\\" + table.tableName + ".cs");
                     });
                 });
                 //Generate base class
                 if (self.exportBase()) {
                     self.GetBaseData(function (data) {
                         var classText = $("#baseClassTemplate").render(data);
-                        self.writeTextFile(classText, "BaseClasses\\" + self.baseClass() + ".cs");
+                        self.writeTextFile(classText, "C#\\BaseClasses\\" + self.baseClass() + ".cs");
                     });
                 }
                 //Generate error class
                 if (self.exportError()) {
                     self.GetBaseData(function (data) {
                         var classText = $("#errorClassTemplate").render(data);
-                        self.writeTextFile(classText, "BaseClasses\\" + self.errorClass() + ".cs");
+                        self.writeTextFile(classText, "C#\\BaseClasses\\" + self.errorClass() + ".cs");
                     });
                 }
                 //Generate interface classes
@@ -285,7 +278,7 @@
                     $(App.Variables.SelectedTables).each(function (index, table) {
                         self.GetTableData(table.tableName, function (data) {
                             var classText = $("#interfaceClassTemplate").render(data);
-                            self.writeTextFile(classText, "Interfaces\\I" + table.tableName + ".cs");
+                            self.writeTextFile(classText, "C#\\Interfaces\\I" + table.tableName + ".cs");
                         });
                     });
                 }
@@ -307,50 +300,65 @@
 </script>
 
 <div id="SelectFolder">
-    <form data-bind="submit:FormSubmit">
+    <form data-bind="submit:FormSubmit" class="form-horizontal">
         <div class="form-group">
-            <label class="control-label">Selected Tables</label>
-            <div>
+            <label class="control-label col-sm-2">Selected Tables</label>
+            <div class="col-sm-10">
                 <span class="form-control-static" data-bind="text: tablesCount"></span>
             </div>
         </div>
         <div class="form-group">
-            <label>Namespace</label>
-            <input type="text" data-bind="value: namespace" class="form-control" required>
+            <label class="control-label col-sm-2">Namespace</label>
+            <div class="col-sm-10">
+                <input type="text" data-bind="value: namespace" class="form-control" required>
+            </div>
         </div>
         <div class="form-group">
-            <label>Base Class</label>
-            <input type="text" data-bind="value: baseClass" class="form-control" required>
-        </div>
-        <div class="checkbox">
-            <label>
-                <input type="checkbox" data-bind="checked: exportBase"> Export base class
-            </label>
-        </div>
-        <div class="checkbox">
-            <label>
-                <input type="checkbox" data-bind="checked: exportError"> Export base error class
-            </label>
-        </div>
-        <div class="checkbox">
-            <label>
-                <input type="checkbox" data-bind="checked: exportInterface"> Export interface classes
-            </label>
+            <label class="control-label col-sm-2">Base Class Name</label>
+            <div class="col-sm-10">
+                <input type="text" data-bind="value: baseClass" class="form-control" required>
+            </div>
         </div>
         <div class="form-group">
-            <label>Select a folder to export to</label>
-            <input type="file" nwdirectory data-bind="value:folder" required />
-            <p class="help-block">Export to: <span data-bind="text: folder"></span></p>
+            <label class="control-label col-sm-2">Settings</label>
+            <div class="col-sm-10">
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" data-bind="checked: exportBase"> Export base class
+                    </label>
+                </div>
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" data-bind="checked: exportError"> Export base error class
+                    </label>
+                </div>
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" data-bind="checked: exportInterface"> Export interface classes
+                    </label>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="control-label col-sm-2">Export folder</label>
+            <div class="col-sm-10">
+                <input type="file" nwdirectory data-bind="value:folder" required />
+                <p class="help-block">Export to: <span data-bind="text: folder"></span></p>
+            </div>
         </div>
         <button type="submit" class="btn btn-primary">Export Classes</button>
     </form>
     <br />
     <h3>Export Preview</h3>
     <textarea rows="25" class="form-control" data-bind="value:tmplPreview"></textarea>
-    <script id="classTemplate" type="text/x-jquery-tmpl" data-bind="text: classTemplate"></script>
-    <script id="baseClassTemplate" type="text/x-jquery-tmpl" data-bind="text: baseClassTemplate"></script>
-    <script id="baseClassTemplate" type="text/x-jquery-tmpl" data-bind="text: baseClassTemplate"></script>
-    <script id="errorClassTemplate" type="text/x-jquery-tmpl" data-bind="text: errorClassTemplate"></script>
+    <script id="classTemplate" type="text/x-jquery-tmpl" data-bind="text: classTemplate">
+    </script>
+    <script id="baseClassTemplate" type="text/x-jquery-tmpl" data-bind="text: baseClassTemplate">
+    </script>
+    <script id="baseClassTemplate" type="text/x-jquery-tmpl" data-bind="text: baseClassTemplate">
+    </script>
+    <script id="errorClassTemplate" type="text/x-jquery-tmpl" data-bind="text: errorClassTemplate">
+    </script>
     <script id="interfaceClassTemplate" type="text/x-jquery-tmpl" data-bind="text: interfaceClassTemplate">
     </script>
 </div>

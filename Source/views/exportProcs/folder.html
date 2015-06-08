@@ -256,21 +256,25 @@
 </script>
 
 <div id="SelectFolder">
-    <form data-bind="submit:FormSubmit">
+    <form data-bind="submit:FormSubmit" class="form-horizontal">
         <div class="form-group">
-            <label class="control-label">Selected Tables</label>
-            <div>
+            <label class="control-label col-sm-2">Selected Tables</label>
+            <div class="col-sm-10">
                 <span class="form-control-static" data-bind="text: tablesCount"></span>
             </div>
         </div>
         <div class="form-group">
-            <label>Author</label>
-            <input type="text" data-bind="value: author" class="form-control" required>
+            <label class="control-label col-sm-2">Author</label>
+            <div class="col-sm-10">
+                <input type="text" data-bind="value: author" class="form-control" required>
+            </div>
         </div>
         <div class="form-group">
-            <label>Select a folder to export to</label>
-            <input type="file" nwdirectory data-bind="value:folder" required />
-            <p class="help-block">Export to: <span data-bind="text: folder"></span></p>
+            <label class="control-label col-sm-2">Export folder</label>
+            <div class="col-sm-10">
+                <input type="file" nwdirectory data-bind="value:folder" required />
+                <p class="help-block">Export to: <span data-bind="text: folder"></span></p>
+            </div>
         </div>
         <button type="submit" class="btn btn-primary">Export Procs</button>
     </form>
