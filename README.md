@@ -23,3 +23,4 @@ You can add the KooBoo.Framework refrence to your project from NuGet.
 - Generated classes supports crud operations: GetDetails, GetListSearch, AddUpdate and delete
 - Transaction handling using entity chaining via KooBoo.Framework
 - Custom templates. Edit all templates to suit your own needs
+- Ability to generate C# class library project to include in your solution
